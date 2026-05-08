@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── ShadCN HSL CSS Variables ─────────────────────────────────────────── */
+@layer base {
+  :root {
+    /* cream #F9F7F3 → hsl(40, 33%, 96%) */
+    --background: 40 33% 96%;
+    /* ink #4A3F35 → hsl(28, 16%, 25%) */
+    --foreground: 28 16% 25%;
+
+    /* card */
+    --card: 40 33% 98%;
+    --card-foreground: 28 16% 25%;
+
+    /* popover */
+    --popover: 40 33% 98%;
+    --popover-foreground: 28 16% 25%;
+
+    /* primary = logo taupe #A69279 → hsl(33, 21%, 56%) */
+    --primary: 33 21% 56%;
+    --primary-foreground: 40 33% 98%;
+
+    /* secondary = lighter cream */
+    --secondary: 40 25% 90%;
+    --secondary-foreground: 28 16% 25%;
+
+    /* muted */
+    --muted: 40 20% 90%;
+    --muted-foreground: 28 12% 50%;
+
+    /* accent = logo gold #D4A351 → hsl(38, 60%, 57%) */
+    --accent: 38 60% 57%;
+    --accent-foreground: 40 33% 98%;
+
+    /* destructive */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 40 33% 98%;
+
+    /* border / input / ring */
+    --border: 33 20% 80%;
+    --input: 33 20% 80%;
+    --ring: 33 21% 56%;
+
+    /* radius */
+    --radius: 0.5rem;
+  }
+}
+
+/* ── Base Styles ───────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-cream text-ink font-sans antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans font-semibold tracking-tight;
+  }
+  p, li, blockquote {
+    @apply font-serif leading-relaxed;
+  }
+}
+
+/* ── Utility Classes ───────────────────────────────────────────────────── */
+@layer utilities {
+  .terracotta-rule {
+    @apply mx-auto h-0.5 w-12 bg-terracotta my-4;
+  }
+  .container-narrow {
+    @apply max-w-5xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}

@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="1200" height="1200">
+  <defs>
+    <radialGradient id="hbg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#F2EDE4" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="hvessel" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8A5C42"/>
+      <stop offset="50%" stop-color="#A57051"/>
+      <stop offset="100%" stop-color="#8A5C42"/>
+    </linearGradient>
+    <linearGradient id="hamber" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6B3A1F"/>
+      <stop offset="50%" stop-color="#A0522D"/>
+      <stop offset="100%" stop-color="#6B3A1F"/>
+    </linearGradient>
+    <linearGradient id="hoil" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#9A7220"/>
+      <stop offset="50%" stop-color="#D9A536"/>
+      <stop offset="100%" stop-color="#9A7220"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="1200" fill="#F2EDE4"/>
+  <rect width="1200" height="1200" fill="url(#hbg)"/>
+
+  <!-- ground shadow line -->
+  <ellipse cx="600" cy="950" rx="500" ry="20" fill="#6B4A35" opacity="0.06"/>
+
+  <!-- LEFT — large jar -->
+  <g transform="translate(330 720)">
+    <ellipse cx="0" cy="220" rx="180" ry="14" fill="#6B4A35" opacity="0.18"/>
+    <path d="M -160 -50 Q -160 -210 -130 -210 L 130 -210 Q 160 -210 160 -50 L 160 180 Q 160 220 120 220 L -120 220 Q -160 220 -160 180 Z"
+          fill="url(#hvessel)"/>
+    <path d="M -130 -50 Q -130 -180 -110 -180 L -90 -180 L -90 180 Q -90 200 -110 200 L -130 200 Z"
+          fill="#FFFFFF" opacity="0.14"/>
+    <rect x="-140" y="10" width="280" height="120" fill="#FAF6F0"/>
+    <line x1="-120" y1="30" x2="120" y2="30" stroke="#A57051" stroke-width="2"/>
+    <line x1="-120" y1="110" x2="120" y2="110" stroke="#A57051" stroke-width="2"/>
+    <line x1="-30" y1="70" x2="30" y2="70" stroke="#D9A536" stroke-width="3"/>
+    <rect x="-145" y="-245" width="290" height="40" rx="6" fill="#6B4A35"/>
+    <rect x="-150" y="-228" width="300" height="18" rx="4" fill="#9A7C62"/>
+    <rect x="-160" y="-58" width="320" height="6" fill="#D9A536"/>
+  </g>
+
+  <!-- CENTER — tall amber bottle (Arishta) — pulled forward -->
+  <g transform="translate(620 760)">
+    <ellipse cx="0" cy="200" rx="130" ry="11" fill="#6B4A35" opacity="0.18"/>
+    <rect x="-30" y="-265" width="60" height="50" fill="url(#hamber)"/>
+    <path d="M -100 -180 Q -100 -220 -30 -220 L 30 -220 Q 100 -220 100 -180 Z" fill="url(#hamber)"/>
+    <rect x="-100" y="-180" width="200" height="370" rx="14" fill="url(#hamber)"/>
+    <rect x="-78" y="-180" width="16" height="350" rx="8" fill="#FFFFFF" opacity="0.20"/>
+    <rect x="-36" y="-280" width="72" height="22" rx="3" fill="#E7B95C"/>
+    <rect x="-36" y="-282" width="72" height="6" fill="#D9A536"/>
+    <rect x="-90" y="-60" width="180" height="190" fill="#FAF6F0"/>
+    <line x1="-72" y1="-35" x2="72" y2="-35" stroke="#A57051" stroke-width="2"/>
+    <line x1="-72" y1="115" x2="72" y2="115" stroke="#A57051" stroke-width="2"/>
+    <g transform="translate(0 45)" fill="#A57051">
+      <path d="M 0 -22 Q -16 0 0 22 Q 16 0 0 -22 Z"/>
+    </g>
+  </g>
+
+  <!-- RIGHT — oil bottle -->
+  <g transform="translate(870 740)">
+    <ellipse cx="0" cy="220" rx="115" ry="11" fill="#6B4A35" opacity="0.18"/>
+    <rect x="-22" y="-275" width="44" height="60" fill="#8A5C42"/>
+    <path d="M -90 -200 Q -90 -225 -28 -225 L 28 -225 Q 90 -225 90 -200 Z" fill="url(#hoil)"/>
+    <rect x="-90" y="-200" width="180" height="410" rx="10" fill="url(#hoil)"/>
+    <rect x="-72" y="-200" width="14" height="390" rx="7" fill="#FFFFFF" opacity="0.22"/>
+    <rect x="-26" y="-285" width="52" height="14" rx="2" fill="#6B4A35"/>
+    <rect x="-22" y="-275" width="44" height="6" fill="#9A7C62"/>
+    <rect x="-78" y="-60" width="156" height="190" fill="#FAF6F0"/>
+    <line x1="-62" y1="-35" x2="62" y2="-35" stroke="#A57051" stroke-width="2"/>
+    <line x1="-62" y1="105" x2="62" y2="105" stroke="#A57051" stroke-width="2"/>
+    <g transform="translate(0 35)" fill="#A57051">
+      <path d="M 0 -22 Q 22 -8 22 12 Q 0 22 -22 12 Q -22 -8 0 -22 Z"/>
+    </g>
+  </g>
+
+  <!-- BOTANICAL ACCENT — leaves scattered (subtle) -->
+  <g fill="#A57051" opacity="0.35">
+    <g transform="translate(180 920) rotate(-18)">
+      <path d="M 0 0 Q 36 -16 60 0 Q 36 16 0 0 Z"/>
+      <line x1="0" y1="0" x2="60" y2="0" stroke="#6B4A35" stroke-width="1"/>
+    </g>
+    <g transform="translate(1020 940) rotate(20)">
+      <path d="M 0 0 Q 36 -16 60 0 Q 36 16 0 0 Z"/>
+      <line x1="0" y1="0" x2="60" y2="0" stroke="#6B4A35" stroke-width="1"/>
+    </g>
+    <g transform="translate(120 540) rotate(35)">
+      <path d="M 0 0 Q 28 -12 48 0 Q 28 12 0 0 Z"/>
+    </g>
+    <g transform="translate(1080 580) rotate(-25)">
+      <path d="M 0 0 Q 28 -12 48 0 Q 28 12 0 0 Z"/>
+    </g>
+  </g>
+
+  <!-- top wordmark (very faint, decorative) -->
+  <text x="600" y="220" text-anchor="middle"
+        font-family="Georgia, 'Liberation Serif', serif"
+        font-size="32" font-style="italic" fill="#9A7C62" opacity="0.7"
+        letter-spacing="6">EST. 1950 — JUNAGADH</text>
+  <line x1="540" y1="240" x2="660" y2="240" stroke="#A57051" stroke-width="2"/>
+</svg>

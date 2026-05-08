@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#F2EDE4" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="vessel" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8A5C42"/>
+      <stop offset="40%" stop-color="#A57051"/>
+      <stop offset="60%" stop-color="#A57051"/>
+      <stop offset="100%" stop-color="#8A5C42"/>
+    </linearGradient>
+    <linearGradient id="amber" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6B3A1F"/>
+      <stop offset="40%" stop-color="#A0522D"/>
+      <stop offset="60%" stop-color="#A0522D"/>
+      <stop offset="100%" stop-color="#6B3A1F"/>
+    </linearGradient>
+    <linearGradient id="oil" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#9A7220"/>
+      <stop offset="40%" stop-color="#D9A536"/>
+      <stop offset="60%" stop-color="#D9A536"/>
+      <stop offset="100%" stop-color="#9A7220"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="#F2EDE4"/>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <g transform="translate(400 420)">
+    <ellipse cx="0" cy="240" rx="130" ry="11" fill="#6B4A35" opacity="0.12"/>
+
+    <!-- neck -->
+    <rect x="-30" y="-265" width="60" height="50" fill="url(#amber)"/>
+
+    <!-- shoulder -->
+    <path d="M -100 -180 Q -100 -220 -30 -220 L 30 -220 Q 100 -220 100 -180 Z"
+          fill="url(#amber)"/>
+
+    <!-- body (taller, more slender) -->
+    <rect x="-100" y="-180" width="200" height="410" rx="14" fill="url(#amber)"/>
+
+    <!-- shine -->
+    <rect x="-78" y="-180" width="16" height="390" rx="8" fill="#FFFFFF" opacity="0.18"/>
+
+    <!-- cap (gold/mustard for arishtas) -->
+    <rect x="-36" y="-280" width="72" height="22" rx="3" fill="#E7B95C"/>
+    <rect x="-36" y="-282" width="72" height="6" fill="#D9A536"/>
+
+    <!-- label -->
+    <rect x="-90" y="-50" width="180" height="200" fill="#FAF6F0"/>
+    <line x1="-72" y1="-25" x2="72" y2="-25" stroke="#A57051" stroke-width="2"/>
+    <line x1="-72" y1="125" x2="72" y2="125" stroke="#A57051" stroke-width="2"/>
+
+    <!-- decorative droplet glyph -->
+    <g transform="translate(0 60)" fill="#A57051">
+      <path d="M 0 -22 Q -16 0 0 22 Q 16 0 0 -22 Z"/>
+    </g>
+  </g>
+
+  <text x="400" y="700" text-anchor="middle"
+        font-family="Georgia, 'Liberation Serif', serif"
+        font-size="42" font-weight="600" fill="#6B4A35">Arjunarishta</text>
+  <text x="400" y="745" text-anchor="middle"
+        font-family="Georgia, 'Liberation Serif', serif"
+        font-size="18" font-style="italic" fill="#9A7C62"
+        letter-spacing="3">ARISHTA</text>
+  <line x1="370" y1="765" x2="430" y2="765" stroke="#A57051" stroke-width="2"/>
+</svg>
