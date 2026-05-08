@@ -34,10 +34,10 @@ export async function POST(req: Request) {
     // SECURITY GUARD: Strictly internal route block
     const internalSecret = process.env.INTERNAL_API_SECRET;
     const requestSecret = req.headers.get("x-internal-secret");
-    
+
     if (!internalSecret || requestSecret !== internalSecret) {
       return NextResponse.json(
-        { error: "Unauthorized endpoint access." }, 
+        { error: "Unauthorized endpoint access." },
         { status: 401 }
       );
     }
@@ -47,13 +47,22 @@ export async function POST(req: Request) {
     const result = manualSaveSchema.safeParse(body);
     if (!result.success) {
       return NextResponse.json(
-        { error: "Malformed order body.", details: result.error.errors }, 
+        { error: "Malformed order body.", details: result.error.errors },
         { status: 400 }
       );
     }
+    const orderRecord: OrderRecord = {
+      ...result.data,
+      items: result.data.items.map((item) => ({
+        productId: item.productId,
+        name: item.productName,
+        slug: "",
+        image: "",
+        quantity: item.quantity,
+        price: item.price,
+      })),
+    };
 
-    const orderRecord: OrderRecord = result.data;
-    
     // Explicit pass to backend persistance layer
     await saveOrderToSheet(orderRecord);
 

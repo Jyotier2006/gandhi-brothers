@@ -41,7 +41,7 @@ export async function saveOrderToSheet(order: OrderRecord): Promise<void> {
 
   // Format cart items beautifully for the spreadsheet cell
   const itemsText = order.items
-    .map((i) => `${i.productName} ×${i.quantity} @₹${i.price}`)
+    .map((i) => `${i.name} ×${i.quantity} @₹${i.price}`)
     .join(" | ");
 
   const rowData = [
