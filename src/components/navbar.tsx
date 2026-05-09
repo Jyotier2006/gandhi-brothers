@@ -11,10 +11,8 @@ import { cn } from "@/lib/utils";
 const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Shop", href: "/products" },
+  { label: "Heritage", href: "/heritage" },
   { label: "Bulk Order", href: "/bulk-order" },
-  { label: "Churnas", href: "/products?category=Churna" },
-  { label: "Capsules", href: "/products?category=Capsule" },
-  { label: "Arishtas", href: "/products?category=Arishta" },
 ];
 
 export default function Navbar() {

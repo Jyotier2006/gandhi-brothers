@@ -161,9 +161,9 @@ export default async function HomePage() {
                           px-8 py-10 md:px-12 md:py-14
                           grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
-              <p className="text-mustard text-xs font-bold uppercase tracking-[0.18em] mb-3">Free shipping</p>
+              <p className="text-mustard text-xs font-bold uppercase tracking-[0.18em] mb-3">Direct to your door</p>
               <h3 className="text-2xl md:text-3xl font-semibold mb-4">
-                Free delivery on orders above ₹999
+                Explore our full range
               </h3>
               <p className="text-cream/80 leading-relaxed text-sm sm:text-base">
                 Authentic, FDCA-compliant Ayurvedic formulations delivered across India.

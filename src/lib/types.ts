@@ -80,5 +80,16 @@ export type OrderRecord = {
   /** Razorpay order id returned from /api/razorpay/create-order. */
   razorpay_order_id: string;
   /** Razorpay payment id returned by the client after successful payment. */
-  razorpay_payment_id: string;
+  razorpay_payment_id?: string;
+  paymentStatus?: string;
+  paidAt?: string;
+  shiprocketOrderId?: string;
+  shipmentId?: string;
+  awbCode?: string;
+  courierName?: string;
+  labelUrl?: string;
+  shippingError?: string;
+  emailSent?: boolean;
+  emailError?: string;
+  fulfillmentDone?: boolean;
 };

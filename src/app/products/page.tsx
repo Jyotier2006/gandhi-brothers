@@ -26,7 +26,7 @@ export default async function ProductsPage({
   const params = await searchParams;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="max-w-screen-2xl mx-auto px-2 sm:px-4 py-10">
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-semibold">Shop</h1>
         <div className="terracotta-rule mx-0" />
@@ -59,7 +59,7 @@ async function ProductGrid({ params }: { params: SearchParams }) {
       <p className="text-sm text-ink-400 mb-4">
         Showing {products.length} {products.length === 1 ? 'product' : 'products'}
       </p>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
         {products.map((p) => (
           <ProductCard key={p.id} product={p} />
         ))}

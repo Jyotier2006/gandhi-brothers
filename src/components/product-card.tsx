@@ -41,11 +41,11 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="group flex flex-col h-full rounded-[2rem] bg-white border border-ink-50 shadow-sm hover:shadow-2xl hover:shadow-ink/5 transition-all duration-500 overflow-hidden"
+      className="group flex flex-col h-full rounded-sm bg-white border border-ink-50 shadow-sm hover:shadow-2xl hover:shadow-ink/5 transition-all duration-500 overflow-hidden"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative aspect-square w-full bg-gradient-to-br from-cream to-[#F7EFE8] overflow-hidden p-6 border-b border-ink-50/50">
+      <div className="relative aspect-square w-full rounded-t-sm bg-gradient-to-br from-cream to-[#F7EFE8] overflow-hidden p-6 border-b border-ink-50/50">
         
         {/* Soft Background glow behind image */}
         <div className={cn(

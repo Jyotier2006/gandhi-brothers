@@ -13,8 +13,7 @@ const SHOP_LINKS = [
 const COMPANY_LINKS = [
   { label: "About Us", href: "/about" },
   { label: "Certifications", href: "/certifications" },
-  { label: "Wholesale Enquiry", href: "/wholesale" },
-  { label: "Blog", href: "/blog" },
+  { label: "Wholesale Enquiry", href: "/bulk-order" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -41,7 +40,7 @@ export default function Footer() {
           <p className="text-sm text-cream/70 font-serif leading-relaxed h-full">
             Bringing the healing wisdom of authentic Ayurveda from Junagadh's heartland directly to your home — pure, trusted, and meticulously certified.
           </p>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-mustard/10 border border-mustard/20 text-xs text-mustard font-semibold tracking-wide">
+          <div className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-mustard/10 border border-mustard/20 text-xs text-mustard font-semibold tracking-wide">
             <Leaf className="h-3.5 w-3.5" />
             <span>FDCA Licence: GA/2079</span>
           </div>

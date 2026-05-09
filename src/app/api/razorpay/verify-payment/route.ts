@@ -2,8 +2,10 @@ import { NextResponse } from 'next/server';
 import crypto from 'node:crypto';
 import { getProductsByIds } from '@/lib/products';
 import { applyStockChanges } from '@/lib/stock';
-import { saveOrderToSheet } from '@/lib/orders';
+import { saveOrderToSheet, getOrder, updateOrderInSheet } from '@/lib/orders';
 import { effectivePrice } from '@/lib/utils';
+import { sendOrderEmail } from '@/lib/email';
+import type { OrderEmailPayload } from '@/lib/email';
 
 type CartLine = { productId: string; quantity: number };
 
@@ -21,7 +23,6 @@ type Body = {
     state: string;
     pincode: string;
   };
-  /** Shipping cost as calculated by Shiprocket at create-order time. */
   shippingCost?: number;
 };
 
@@ -40,85 +41,64 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing payment details.' }, { status: 400 });
     }
 
-    // === HMAC SIGNATURE VERIFICATION (security-critical) ===
     const secret = process.env.RAZORPAY_KEY_SECRET;
-    if (!secret) {
-      return NextResponse.json({ error: 'Payment gateway is not configured.' }, { status: 500 });
-    }
+    if (!secret) return NextResponse.json({ error: 'Gateway not configured.' }, { status: 500 });
+    
     const expected = crypto
       .createHmac('sha256', secret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest('hex');
+      
     if (expected !== razorpay_signature) {
-      console.warn('Invalid Razorpay signature for order', razorpay_order_id);
-      return NextResponse.json(
-        { error: 'Payment verification failed. Order was not recorded.' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Payment verification failed.' }, { status: 400 });
     }
 
-    // === Re-validate items against the Sheet (server side) ===
-    const productIds = items.map((i) => i.productId);
-    const products = await getProductsByIds(productIds);
+    // 1. Fetch order from DB
+    let orderRecord = await getOrder(razorpay_order_id).catch(() => null);
 
-    let subtotal = 0;
-    const orderItems: Array<{
-      productId: string;
-      productName: string;
-      packSize: string;
-      quantity: number;
-      price: number;
-    }> = [];
+    // 2. Idempotency check
+    if (orderRecord && orderRecord.fulfillmentDone) {
+      return NextResponse.json({ success: true, orderId: orderRecord.id });
+    }
 
-    for (const line of items) {
-      const product = products.find((p) => p.id === line.productId);
-      if (!product) {
-        return NextResponse.json(
-          { error: `Product not found: ${line.productId}` },
-          { status: 400 }
-        );
+    let orderItems: any[] = [];
+    let deliveryCharge = body.shippingCost ?? 0;
+    
+    if (!orderRecord) {
+      // First time hitting verification: validate items, calc stock, create record
+      const productIds = items.map((i) => i.productId);
+      const products = await getProductsByIds(productIds);
+      let subtotal = 0;
+
+      for (const line of items) {
+        const product = products.find((p) => p.id === line.productId);
+        if (!product) return NextResponse.json({ error: `Product missing` }, { status: 400 });
+        const price = effectivePrice(product.price, product.discount_price);
+        subtotal += price * line.quantity;
+        orderItems.push({
+          productId: product.id,
+          productName: product.name,
+          packSize: (product as any).pack_size ?? '',
+          quantity: line.quantity,
+          price,
+        });
       }
-      const price = effectivePrice(product.price, product.discount_price);
-      subtotal += price * line.quantity;
-      orderItems.push({
-        productId: product.id,
-        productName: product.name,
-        // pack_size is added by products.ts loader (see Product type extension)
-        packSize: (product as any).pack_size ?? '',
-        quantity: line.quantity,
-        price,
-      });
-    }
 
-    const deliveryCharge = body.shippingCost ?? 0;
-    const total = Math.round(subtotal + deliveryCharge);
+      const total = Math.round(subtotal + deliveryCharge);
+      const orderId = `GB${Date.now()}${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
 
-    // === Generate order ID ===
-    const orderId = `GB${Date.now()}${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
-    const createdAt = new Date().toISOString();
+      try {
+        await applyStockChanges(orderItems.map((oi) => ({
+          skuCode: oi.productId, productName: oi.productName, packSize: oi.packSize,
+          quantity: oi.quantity, reason: `Order ${orderId}`,
+        })));
+      } catch (e) {
+        console.error('Stock decrement error:', e);
+      }
 
-    // === STEP 1: Decrement stock + write audit log ===
-    // Done first so even if order-save fails downstream, stock is consistent.
-    try {
-      await applyStockChanges(
-        orderItems.map((oi) => ({
-          skuCode: oi.productId,
-          productName: oi.productName,
-          packSize: oi.packSize,
-          quantity: oi.quantity,
-          reason: `Order ${orderId}`,
-        }))
-      );
-    } catch (e) {
-      // Don't fail the response — payment is already complete. Log loudly.
-      console.error('Stock decrement failed for order', orderId, e);
-    }
-
-    // === STEP 2: Save order to Orders sheet ===
-    try {
-      await saveOrderToSheet({
+      orderRecord = {
         id: orderId,
-        createdAt,
+        createdAt: new Date().toISOString(),
         customer: address,
         items: orderItems,
         subtotal,
@@ -126,17 +106,83 @@ export async function POST(req: Request) {
         total,
         razorpay_order_id,
         razorpay_payment_id,
-      } as any);
-    } catch (e) {
-      console.error('Order-save failed for', orderId, e);
+        paymentStatus: "paid",
+        paidAt: new Date().toISOString()
+      } as any;
+
+      try {
+        await saveOrderToSheet(orderRecord as any);
+      } catch (e) {
+        console.error('Order save err:', e);
+      }
+    } else {
+      orderRecord.razorpay_payment_id = razorpay_payment_id;
+      orderRecord.paymentStatus = "paid";
+      orderRecord.paidAt = new Date().toISOString();
+      orderItems = orderRecord.items || [];
     }
 
-    return NextResponse.json({ success: true, orderId });
+    // 4. Call directShip(order) -> update state locally
+    const { directShip } = await import('@/lib/shiprocket');
+    const shipResult = await directShip(orderRecord) as any;
+    if (shipResult.error) {
+      orderRecord!.shippingError = shipResult.error;
+    } else {
+      orderRecord!.shiprocketOrderId = shipResult.shiprocketOrderId;
+      orderRecord!.shipmentId = shipResult.shipmentId?.toString();
+      orderRecord!.awbCode = shipResult.awbCode;
+      orderRecord!.courierName = shipResult.courierName;
+      orderRecord!.labelUrl = shipResult.labelUrl;
+    }
+
+    // 5. Send order email
+    if (!orderRecord!.emailSent) {
+      const emailPayload: OrderEmailPayload = {
+        orderId: orderRecord!.id,
+        createdAt: orderRecord!.createdAt,
+        customerName: orderRecord!.customer.name,
+        customerEmail: orderRecord!.customer.email,
+        customerPhone: orderRecord!.customer.phone,
+        address: orderRecord!.customer.address,
+        city: orderRecord!.customer.city,
+        state: orderRecord!.customer.state,
+        pincode: orderRecord!.customer.pincode,
+        items: orderItems.length > 0 ? orderItems.map((oi: any) => ({
+          name: oi.name || oi.productName,
+          quantity: oi.quantity,
+          price: oi.price,
+        })) : [],
+        subtotal: orderRecord!.subtotal,
+        delivery: orderRecord!.delivery,
+        total: orderRecord!.total,
+        razorpayOrderId: razorpay_order_id,
+        razorpayPaymentId: razorpay_payment_id,
+        shiprocketOrderId: orderRecord!.shiprocketOrderId,
+        awbCode: orderRecord!.awbCode,
+        courierName: orderRecord!.courierName,
+        labelUrl: orderRecord!.labelUrl,
+      };
+
+      try {
+        const sent = await sendOrderEmail(emailPayload);
+        if (sent) orderRecord!.emailSent = true;
+        else orderRecord!.emailError = "Email rejected";
+      } catch (e: any) {
+        orderRecord!.emailError = e.message;
+      }
+    }
+
+    // 6. Set fulfillmentDone and save
+    orderRecord!.fulfillmentDone = true;
+    try {
+      await updateOrderInSheet(orderRecord as any);
+    } catch (err) {
+      console.error('[orders] sheet sync failed (non-fatal):', err);
+    }
+
+    return NextResponse.json({ success: true, orderId: orderRecord!.id });
   } catch (e) {
-    console.error('verify-payment error:', e);
-    return NextResponse.json(
-      { error: 'Internal error. Please contact support.' },
-      { status: 500 }
-    );
+    console.error('verify-payment err:', e);
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }
