@@ -21,7 +21,7 @@ const TIMELINE_ENTRIES = [
     image: "/heritage/heritage-1950-1973-first-25-years.png",
     eyebrow: "LEGACY",
     title: "The first twenty-five years",
-    body: "For a quarter-century the work was almost entirely retail. Whole haritaki came in by the sack from Kathiawar, ashwagandha root from Mandvi, vidanga from the Western Ghats. Each lot was stored, identified, weighed, twisted into paper packets, and handed across the counter — the same trade that had been done on the same lanes for centuries. The house's reputation was built on what it refused to keep: any dravya that didn't match in colour, scent, taste, or fracture went back where it came from.",
+    body: "For a quarter-cenThe house's reputation was built on what it refused to keep: any dravya that didn't match in colour, scent, taste, or fracture went back where it came from.tury the work was almost entirely retail. Whole haritaki came in by the sack from Kathiawar, ashwagandha root from Mandvi, vidanga from the Western Ghats. Each lot was stored, identified, weighed, twisted into paper packets, and handed across the counter — the same trade that had been done on the same lanes for centuries. ",
   },
   {
     year: "1974 – 1989",
@@ -75,7 +75,7 @@ export default function HeritagePage() {
         <p className="text-xs text-terracotta uppercase tracking-[0.2em] font-medium mb-4">
           From Junagadh, since 1950
         </p>
-        <h1 
+        <h1
           className="text-4xl md:text-5xl lg:text-7xl font-semibold leading-tight text-ink"
           style={{ fontFamily: "Georgia, 'Liberation Serif', serif" }}
         >
@@ -89,7 +89,7 @@ export default function HeritagePage() {
 
       {/* ── Timeline Section ── */}
       <section className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
-        
+
         {/* Spine Line */}
         <div className="absolute top-0 bottom-0 left-[24px] md:left-1/2 w-[1px] bg-ink/30 -translate-x-1/2 z-0" />
 
@@ -98,8 +98,8 @@ export default function HeritagePage() {
             const isEven = index % 2 === 0;
 
             return (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className={`relative flex items-center md:justify-between w-full ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} flex-col`}
               >
                 {/* Era Marker */}
@@ -128,7 +128,7 @@ export default function HeritagePage() {
                     <p className="text-xs text-terracotta uppercase tracking-[0.2em] font-medium mb-2">
                       {entry.eyebrow}
                     </p>
-                    <h3 
+                    <h3
                       className="text-xl md:text-2xl font-semibold text-ink mt-1 mb-3"
                       style={{ fontFamily: "Georgia, 'Liberation Serif', serif" }}
                     >

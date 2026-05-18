@@ -13,57 +13,50 @@ export default async function HomePage() {
   return (
     <>
       {/* ── HERO ───────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-[#F9F7F3]">
-        {/* Decorative taupe accent — right-side vertical stripe on desktop */}
-        <div className="absolute right-0 top-0 bottom-0 w-[5%] bg-terracotta/10 hidden lg:block pointer-events-none" />
-        {/* Soft radial glow behind image */}
-        <div className="absolute right-[5%] top-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-mustard/10 blur-3xl pointer-events-none hidden md:block" />
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#F9F7F3] to-white pb-16 pt-24 md:pt-32 md:pb-24">
+        {/* Soft radial glows for depth */}
+        <div className="absolute top-0 left-1/4 w-[40vw] h-[40vw] rounded-full bg-terracotta/5 blur-[100px] pointer-events-none" />
+        <div className="absolute top-1/4 right-1/4 w-[30vw] h-[30vw] rounded-full bg-mustard/10 blur-[100px] pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-24
-                        grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-20 items-center">
-
-          {/* Left: Copy */}
-          <div className="space-y-6 text-center md:text-left">
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
+          
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-terracotta/15 mb-8 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-terracotta animate-pulse" />
             <p className="text-xs sm:text-sm text-terracotta font-bold uppercase tracking-[0.18em]">
               Junagadh, since 1950
             </p>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold leading-[1.1] text-ink">
-              Authentic Ayurveda,<br />
-              <span className="text-terracotta">made the right way.</span>
-            </h1>
-            {/* Brand rule */}
-            <div className="h-0.5 w-10 bg-terracotta mx-auto md:mx-0" />
-            <p className="text-base sm:text-lg text-ink/60 leading-relaxed max-w-lg mx-auto md:mx-0">
-              FDCA-licensed classical and proprietary formulations, manufactured
-              by a family that has dispensed Ayurvedic medicine in Saurashtra
-              for three generations.
-            </p>
-            <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-              <Link href="/products">
-                <Button size="lg">
-                  Shop the catalogue <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="#heritage">
-                <Button size="lg" variant="outline">Read our story</Button>
-              </Link>
-            </div>
           </div>
 
-          {/* Right: Hero image */}
-          <div className="relative w-full max-w-sm sm:max-w-md mx-auto md:max-w-none
-                          aspect-square rounded-3xl overflow-hidden
-                          bg-gradient-to-br from-cream to-white
-                          border border-ink/5 shadow-xl shadow-ink/5">
-            <Image
-              src="/hero.svg"
-              alt="Gandhi Brothers — apothecary jars and bottles"
-              fill
-              priority
-              unoptimized
-              className="object-contain p-4"
-            />
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-semibold leading-[1.1] text-ink tracking-tight mb-6">
+            Rooted in tradition.<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-terracotta to-terracotta-600">
+              Crafted for today.
+            </span>
+          </h1>
+
+          <div className="flex items-center gap-4 w-full max-w-sm mx-auto mb-8 opacity-60">
+            <div className="h-px bg-ink flex-1" />
+            <div className="w-1.5 h-1.5 rounded-full bg-mustard" />
+            <div className="h-px bg-ink flex-1" />
           </div>
+
+          <p className="text-lg sm:text-xl text-ink/70 leading-relaxed max-w-2xl mx-auto mb-10 font-serif italic">
+            For three generations, our family has stood behind the counter in Junagadh, sharing the healing wisdom of Ayurveda. Today, we bring those same authentic, time-tested formulations directly to you—carefully crafted, FDCA-certified, and made the right way.
+          </p>
+
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Link href="/products">
+              <Button size="lg" className="rounded-full h-12 px-8 text-base shadow-lg shadow-terracotta/20">
+                Shop the catalogue <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <Link href="#heritage">
+              <Button size="lg" variant="outline" className="rounded-full h-12 px-8 text-base bg-white/50 backdrop-blur-sm border-terracotta/20 hover:bg-white text-ink">
+                Read our story
+              </Button>
+            </Link>
+          </div>
+          
         </div>
       </section>
 
@@ -90,11 +83,10 @@ export default async function HomePage() {
       {/* ── FEATURED PRODUCTS ──────────────────────────────────────────── */}
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-semibold text-ink">Featured formulations</h2>
+          <h2 className="text-3xl md:text-4xl font-semibold text-ink">Discover our staples</h2>
           <div className="h-0.5 w-10 bg-terracotta mx-auto my-4" />
-          <p className="text-ink/50 max-w-xl mx-auto text-sm sm:text-base">
-            Our most-trusted classical and proprietary preparations, made in small,
-            documented batches.
+          <p className="text-ink/60 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
+            These are the preparations our community has trusted for decades. Made in small, careful batches to ensure every pouch and bottle meets the standards our grandfather set.
           </p>
         </div>
         {featured.length > 0 ? (
@@ -121,7 +113,7 @@ export default async function HomePage() {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-semibold text-ink">Shop by category</h2>
+            <h2 className="text-3xl md:text-4xl font-semibold text-ink">Explore our apothecary</h2>
             <div className="h-0.5 w-10 bg-terracotta mx-auto mt-4" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -161,13 +153,12 @@ export default async function HomePage() {
                           px-8 py-10 md:px-12 md:py-14
                           grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
-              <p className="text-mustard text-xs font-bold uppercase tracking-[0.18em] mb-3">Direct to your door</p>
-              <h3 className="text-2xl md:text-3xl font-semibold mb-4">
-                Explore our full range
+              <p className="text-mustard text-xs font-bold uppercase tracking-[0.18em] mb-3">From our family to yours</p>
+              <h3 className="text-2xl md:text-3xl font-semibold mb-4 text-cream">
+                Experience true Ayurveda
               </h3>
               <p className="text-cream/80 leading-relaxed text-sm sm:text-base">
-                Authentic, FDCA-compliant Ayurvedic formulations delivered across India.
-                Use it as it was meant to be used — under physician guidance.
+                We believe that genuine wellness comes from pure ingredients and centuries of wisdom. Explore our complete catalogue of classical formulations, properly prepared and delivered straight to your home across India.
               </p>
             </div>
             <div className="flex md:justify-end">
@@ -183,7 +174,7 @@ export default async function HomePage() {
       <section className="py-16 bg-white" id="heritage">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-semibold text-ink">In their own words</h2>
+            <h2 className="text-3xl md:text-4xl font-semibold text-ink">What our community says</h2>
             <div className="h-0.5 w-10 bg-terracotta mx-auto mt-4" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

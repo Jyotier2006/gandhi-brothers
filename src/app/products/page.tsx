@@ -1,10 +1,9 @@
 /**
- * Products listing page — async, reads from Sheet via searchProducts().
- * Replace src/app/products/page.tsx with this file.
+ * Products listing page — groups SKUs by base product name.
  */
 import { Suspense } from 'react';
-import { searchProducts } from '@/lib/products';
-import { ProductCard } from '@/components/product-card';
+import { searchGroupedProducts } from '@/lib/products';
+import { ProductGroupCard } from '@/components/product-group-card';
 import { ProductGridSkeleton } from '@/components/product-card-skeleton';
 import { ProductFilters } from '@/components/product-filters';
 
@@ -43,9 +42,9 @@ export default async function ProductsPage({
 }
 
 async function ProductGrid({ params }: { params: SearchParams }) {
-  const products = await searchProducts(params);
+  const groups = await searchGroupedProducts(params);
 
-  if (!products || products.length === 0) {
+  if (!groups || groups.length === 0) {
     return (
       <div className="text-center py-16">
         <p className="text-lg font-medium">No products found</p>
@@ -57,11 +56,11 @@ async function ProductGrid({ params }: { params: SearchParams }) {
   return (
     <>
       <p className="text-sm text-ink-400 mb-4">
-        Showing {products.length} {products.length === 1 ? 'product' : 'products'}
+        Showing {groups.length} {groups.length === 1 ? 'product' : 'products'}
       </p>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
+        {groups.map((g) => (
+          <ProductGroupCard key={g.baseName} group={g} />
         ))}
       </div>
     </>

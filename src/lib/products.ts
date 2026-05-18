@@ -12,7 +12,7 @@
  */
 
 import { google } from 'googleapis';
-import type { Product } from './types';
+import type { Product, ProductGroup } from './types';
 import { deriveWeightGrams } from './weight';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -224,4 +224,82 @@ export async function searchProducts(params: SearchParams): Promise<Product[]> {
 
 export function invalidateProductCache() {
   cache = null;
+}
+
+// ── Grouped products ──────────────────────────────────────────────────────
+
+/** Strip the pack-size suffix from the product name: "Ashwagandha Churna (200g)" → "Ashwagandha Churna" */
+function stripPackSize(name: string): string {
+  return name.replace(/\s*\([\d.]+\s*(?:g|gm|kg|ml|l|tabs|capsules|cap)\)$/i, '').trim();
+}
+
+function groupProducts(products: Product[]): ProductGroup[] {
+  const map = new Map<string, Product[]>();
+
+  for (const p of products) {
+    const baseName = stripPackSize(p.name);
+    if (!map.has(baseName)) {
+      map.set(baseName, []);
+    }
+    map.get(baseName)!.push(p);
+  }
+
+  const groups: ProductGroup[] = [];
+  for (const [baseName, variants] of map) {
+    // Sort variants by price ascending so cheapest is first
+    variants.sort((a, b) => {
+      const aPrice = a.discount_price && a.discount_price < a.price ? a.discount_price : a.price;
+      const bPrice = b.discount_price && b.discount_price < b.price ? b.discount_price : b.price;
+      return aPrice - bPrice;
+    });
+
+    const first = variants[0];
+    groups.push({
+      baseName,
+      category: first.category,
+      image: first.image,
+      slug: first.slug,
+      featured: variants.some((v) => v.featured),
+      variants,
+    });
+  }
+
+  return groups;
+}
+
+export async function searchGroupedProducts(params: SearchParams): Promise<ProductGroup[]> {
+  let products = await getAllProducts();
+
+  if (params.q) {
+    const needle = params.q.toLowerCase();
+    products = products.filter((p) => p.name.toLowerCase().includes(needle));
+  }
+  if (params.category) {
+    products = products.filter((p) => p.category === params.category);
+  }
+
+  const eff = (p: Product) =>
+    p.discount_price && p.discount_price < p.price ? p.discount_price : p.price;
+
+  if (params.min) {
+    const min = Number(params.min);
+    if (Number.isFinite(min)) products = products.filter((p) => eff(p) >= min);
+  }
+  if (params.max) {
+    const max = Number(params.max);
+    if (Number.isFinite(max)) products = products.filter((p) => eff(p) <= max);
+  }
+
+  let groups = groupProducts(products);
+
+  switch (params.sort) {
+    case 'price-asc':
+      groups.sort((a, b) => eff(a.variants[0]) - eff(b.variants[0]));
+      break;
+    case 'price-desc':
+      groups.sort((a, b) => eff(b.variants[0]) - eff(a.variants[0]));
+      break;
+  }
+
+  return groups;
 }

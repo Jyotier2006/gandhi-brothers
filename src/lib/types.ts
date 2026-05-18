@@ -17,6 +17,21 @@ export type Product = {
   /** Auto-derived from category + pack_size by weight.ts — no Sheet column needed. */
   weight_grams?: number;
   sku?: string;
+  pack_size?: string;
+};
+
+/** A group of pack-size variants under a single base product name. */
+export type ProductGroup = {
+  /** Display name without pack size, e.g. "Ashwagandha Churna" */
+  baseName: string;
+  category: string;
+  /** Image of the first/default variant */
+  image: string;
+  /** Slug of the first/default variant (used for "View details" link) */
+  slug: string;
+  featured: boolean;
+  /** All pack-size variants of this product */
+  variants: Product[];
 };
 
 
