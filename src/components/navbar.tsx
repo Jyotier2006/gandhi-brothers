@@ -12,7 +12,7 @@ const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Shop", href: "/products" },
   { label: "Heritage", href: "/heritage" },
-  { label: "Bulk Order", href: "/bulk-order" },
+  { label: "Inquiries", href: "/inquiry" },
 ];
 
 export default function Navbar() {

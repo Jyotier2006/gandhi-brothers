@@ -16,6 +16,7 @@ export type Product = {
   created_at: string;
   /** Auto-derived from category + pack_size by weight.ts — no Sheet column needed. */
   weight_grams?: number;
+  sku?: string;
 };
 
 

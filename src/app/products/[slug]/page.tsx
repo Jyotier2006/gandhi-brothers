@@ -3,10 +3,12 @@ import Image from "next/image";
 import { Metadata } from "next";
 import { ShieldCheck, Sparkles } from "lucide-react";
 import { getProductBySlug, getAllProducts } from "@/lib/products";
+import { getProductDescription } from "@/lib/product-descriptions";
 import { calculateDiscount, effectivePrice, formatINR } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { ProductActions } from "@/components/product-actions";
 import { ProductCard } from "@/components/product-card";
+import ProductRichContent from "@/components/ProductRichContent";
 
 export const generateMetadata = async ({
   params,
@@ -34,6 +36,10 @@ export default async function ProductDetailPage({
   if (!product) {
     notFound();
   }
+
+  const richContent = getProductDescription(
+    product.sku ?? product.slug ?? product.name
+  );
 
   const currentPrice = effectivePrice(product.price, product.discount_price);
   const discount = calculateDiscount(product.price, product.discount_price);
@@ -67,7 +73,7 @@ export default async function ProductDetailPage({
                   fill
                   priority
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-contain drop-shadow-2xl animate-[float_6s_ease-in-out_infinite]"
+                  className={`object-contain drop-shadow-2xl ${product.image.endsWith('.svg') ? 'animate-[float_6s_ease-in-out_infinite]' : ''}`}
                   unoptimized={product.image.endsWith('.svg')}
                 />
               </div>
@@ -122,9 +128,13 @@ export default async function ProductDetailPage({
             <div className="h-px w-full bg-gradient-to-r from-ink-100 to-transparent" />
 
             {/* Description */}
-            <p className="text-ink/80 font-serif leading-relaxed text-lg max-w-xl">
-              {product.description}
-            </p>
+            {richContent ? (
+              <ProductRichContent product={richContent} />
+            ) : (
+              <p className="text-ink/80 font-serif leading-relaxed text-lg max-w-xl">
+                {product.description}
+              </p>
+            )}
 
             <div className="w-full xl:w-4/5 pt-2">
               <ProductActions product={product} />

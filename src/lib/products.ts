@@ -14,9 +14,11 @@
 import { google } from 'googleapis';
 import type { Product } from './types';
 import { deriveWeightGrams } from './weight';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const SHEET_NAME = 'Products';
-const RANGE = `${SHEET_NAME}!A4:L`;
+const RANGE = `${SHEET_NAME}!A1:Z`;
 
 const CACHE_TTL_MS = 60 * 1000;
 let cache: { data: Product[]; expiresAt: number } | null = null;
@@ -35,13 +37,24 @@ function getSheetsClient() {
   return google.sheets({ version: 'v4', auth });
 }
 
-function rowToProduct(row: any[]): Product | null {
-  const [
-    skuCode, name, slug, section, category, packSize,
-    mrp, discount, stock, featured, status, _note,
-  ] = row;
+function rowToProduct(row: any[], headerMap: Map<string, number>): Product | null {
+  const getField = (name: string) => headerMap.has(name) ? row[headerMap.get(name)!] : undefined;
 
+  const status = getField('Status');
   if (status !== 'Active') return null;
+
+  const skuCode = getField('SKU Code');
+  const sku = getField('sku');
+  const name = getField('Product Name');
+  const slug = getField('Slug');
+  const section = getField('Section');
+  const category = getField('Category');
+  const packSize = getField('Pack Size');
+  const mrp = getField('MRP (₹)');
+  const discount = getField('Discount Price (₹)');
+  const stock = getField('Stock (units)');
+  const featured = getField('Featured');
+
   if (!skuCode || !name || !slug || !category) return null;
 
   const priceNum = Number(mrp);
@@ -52,6 +65,12 @@ function rowToProduct(row: any[]): Product | null {
 
   // Auto-derive weight from category + pack size — no Sheet column needed
   const weightGrams = deriveWeightGrams(String(category), String(packSize || ''));
+
+  // Check whether a PNG exists for this slug; fall back to SVG placeholder.
+  const pngPath = path.join(process.cwd(), 'public', 'products', `${slug}.png`);
+  const hasPng = fs.existsSync(pngPath);
+  const ext = hasPng ? 'png' : 'svg';
+  const baseName = hasPng ? slug : String(slug).replace(/-\d+g$/, '');
 
   return {
     id: String(skuCode),
@@ -64,12 +83,13 @@ function rowToProduct(row: any[]): Product | null {
         ? discountNum
         : null,
     category: String(category),
-    images: [`/products/${String(slug).replace(/-\d+g$/, '')}.svg`],
-    image: `/products/${String(slug).replace(/-\d+g$/, '')}.svg`,
+    images: [`/products/${baseName}.${ext}`],
+    image: `/products/${baseName}.${ext}`,
     stock: stockNum,
     featured: featured === 'Yes',
     created_at: new Date().toISOString(),
     sku_code: String(skuCode),
+    sku: sku ? String(sku) : undefined,
     pack_size: String(packSize || ''),
     section: String(section || ''),
     weight_grams: weightGrams,
@@ -99,8 +119,32 @@ export async function getAllProducts(): Promise<Product[]> {
       range: RANGE,
     });
     const rows = res.data.values ?? [];
-    const products = rows
-      .map(rowToProduct)
+    
+    if (rows.length < 2) return [];
+
+    const headers = rows[0];
+    const headerMap = new Map<string, number>();
+    headers.forEach((h, i) => {
+      let key = String(h).trim();
+      // Fix potential encoding corruption of the ₹ symbol from Sheets API
+      if (key.startsWith('MRP')) key = 'MRP (₹)';
+      if (key.startsWith('Discount Price')) key = 'Discount Price (₹)';
+      headerMap.set(key, i);
+    });
+
+    const expectedHeaders = [
+      "SKU Code", "sku", "Product Name", "Slug", "Section", "Category", 
+      "Pack Size", "MRP (₹)", "Discount Price (₹)", "Stock (units)", "Featured", "Status", "Note"
+    ];
+    for (const h of expectedHeaders) {
+      if (!headerMap.has(h)) {
+        console.warn(`[products] Warning: Header "${h}" not found in Sheet.`);
+      }
+    }
+
+    const dataRows = rows.slice(1);
+    const products = dataRows
+      .map((row) => rowToProduct(row, headerMap))
       .filter((p): p is Product => p !== null);
 
     cache = { data: products, expiresAt: now + CACHE_TTL_MS };
