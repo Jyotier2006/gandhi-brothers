@@ -12,6 +12,7 @@ import { formatINR } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { X, Clock } from "lucide-react";
 import { PincodeCheck } from "@/components/pincode-check";
 import type { CheckoutAddress } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -51,6 +52,35 @@ export default function CheckoutPage() {
   const items = useCartStore((s) => s.items);
   const getSubtotal = useCartStore((s) => s.getSubtotal);
   const clearCart = useCartStore((s) => s.clearCart);
+
+  const [timerOpen, setTimerOpen] = useState(false);
+  const [timeLeft, setTimeLeft] = useState({ days: 2, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    let targetStr = localStorage.getItem("gandhi-launch-target");
+    if (!targetStr) {
+      targetStr = (Date.now() + 2 * 24 * 60 * 60 * 1000).toString();
+      localStorage.setItem("gandhi-launch-target", targetStr);
+    }
+    const target = parseInt(targetStr, 10);
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const diff = target - now;
+      if (diff <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        clearInterval(interval);
+      } else {
+        setTimeLeft({
+          days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((diff / 1000 / 60) % 60),
+          seconds: Math.floor((diff / 1000) % 60),
+        });
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem("gandhi-checkout");
@@ -92,78 +122,9 @@ export default function CheckoutPage() {
       return;
     }
 
-    setSubmitting(true);
+    // Block actual payment processing and show the launch timer
+    setTimerOpen(true);
 
-    try {
-      const orderRes = await fetch("/api/razorpay/create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
-          pincode: form.pincode,
-        }),
-      });
-      
-      const orderData = await orderRes.json();
-      if (!orderRes.ok) throw new Error(orderData.error || "Failed to create order");
-
-      const options = {
-        key: orderData.keyId,
-        amount: orderData.amount,
-        currency: orderData.currency,
-        name: "Gandhi Brothers",
-        description: "Order Checkout",
-        order_id: orderData.orderId,
-        prefill: {
-          name: form.name,
-          email: form.email,
-          contact: form.phone,
-        },
-        theme: { color: "#A57051" },
-        handler: async (response: any) => {
-          try {
-            const verifyRes = await fetch("/api/razorpay/verify-payment", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
-                address: form,
-                shippingCost: shipping?.rate ?? 0,
-              }),
-            });
-
-            const data = await verifyRes.json();
-            if (!verifyRes.ok || !data.success) {
-               throw new Error(data.error);
-            }
-
-            clearCart();
-            router.push(`/order-success?orderId=${data.orderId}`);
-          } catch (verifyError: any) {
-            router.push(`/order-failed?reason=${encodeURIComponent(verifyError.message || "Verification failed")}`);
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            toast.info("Payment cancelled");
-            setSubmitting(false);
-          },
-        },
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.on("payment.failed", (resp: any) => {
-        router.push(`/order-failed?reason=${encodeURIComponent(resp.error?.description || "Payment failed")}`);
-      });
-      rzp.open();
-
-    } catch (e: any) {
-      toast.error(e.message || "An unexpected error occurred. Please try again.");
-      setSubmitting(false);
-    }
   };
 
   if (!hydrated) {
@@ -201,7 +162,7 @@ export default function CheckoutPage() {
   return (
     <>
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
-      
+
       <div className="relative min-h-screen pb-24 bg-cream/30">
         <div className="absolute top-0 left-0 w-full h-[50vh] bg-gradient-to-b from-cream to-transparent -z-10" />
 
@@ -212,7 +173,7 @@ export default function CheckoutPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-            
+
             {/* ── LEFT: FORM ────────────────────────────────────────────────── */}
             <div className="lg:col-span-7 xl:col-span-8">
               <div className="bg-white/80 backdrop-blur-xl border border-white rounded-[2rem] p-6 sm:p-10 shadow-2xl shadow-ink/5">
@@ -222,7 +183,7 @@ export default function CheckoutPage() {
                   </div>
                   <h2 className="text-2xl font-bold font-sans text-ink">Shipping Details</h2>
                 </div>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="sm:col-span-2 space-y-2">
                     <Label htmlFor="name" className="text-ink/80 font-semibold ml-1">Full name</Label>
@@ -335,7 +296,7 @@ export default function CheckoutPage() {
                           <span className="text-ink-400 font-medium text-xs mt-0.5">Qty {item.quantity} × {formatINR(item.price)}</span>
                         </div>
                         <div className="text-sm font-bold text-ink flex items-center justify-end">
-                           {formatINR(item.price * item.quantity)}
+                          {formatINR(item.price * item.quantity)}
                         </div>
                       </div>
                     ))}
@@ -367,9 +328,9 @@ export default function CheckoutPage() {
                     )}
                   </div>
 
-                  <Button 
-                    size="lg" 
-                    onClick={placeOrder} 
+                  <Button
+                    size="lg"
+                    onClick={placeOrder}
                     className="w-full h-16 rounded-2xl text-lg shadow-xl shadow-terracotta/20 bg-ink hover:bg-terracotta transition-all duration-300 relative overflow-hidden"
                     disabled={submitting || !shipping}
                   >
@@ -382,7 +343,7 @@ export default function CheckoutPage() {
                     )}
                   </Button>
                 </div>
-                
+
                 {/* Security footer embedded inside the card */}
                 <div className="bg-ink-50/50 py-4 px-6 border-t border-ink-100">
                   <div className="text-[11px] text-ink-400 text-center font-bold uppercase tracking-widest flex items-center justify-center gap-1.5">
@@ -396,6 +357,59 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      {timerOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" onClick={() => setTimerOpen(false)} />
+          <div className="relative bg-white rounded-3xl shadow-2xl p-8 sm:p-10 w-full max-w-md text-center border border-ink-50 animate-in fade-in zoom-in duration-300">
+            <button
+              onClick={() => setTimerOpen(false)}
+              className="absolute right-5 top-5 p-2 rounded-full hover:bg-cream text-ink-300 hover:text-ink transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="mx-auto h-20 w-20 bg-cream rounded-full mb-6 flex items-center justify-center shadow-inner border border-ink-50">
+              <Clock className="h-10 w-10 text-terracotta animate-pulse" />
+            </div>
+
+            <h2 className="text-3xl font-bold font-sans text-ink mb-3">Almost there!</h2>
+            <p className="text-ink-400 leading-relaxed mb-8">
+              We are finalizing our payment gateway integrations. Online ordering will open in:
+            </p>
+
+            <div className="flex items-center justify-center gap-3 md:gap-4 mb-2">
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-ink text-white rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-black font-sans shadow-lg">
+                  {String(timeLeft.days).padStart(2, "0")}
+                </div>
+                <span className="text-xs uppercase tracking-widest font-bold text-ink-300 mt-3">Days</span>
+              </div>
+              <div className="text-xl md:text-3xl font-bold text-ink-200 mb-6">:</div>
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-ink text-white rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-black font-sans shadow-lg">
+                  {String(timeLeft.hours).padStart(2, "0")}
+                </div>
+                <span className="text-xs uppercase tracking-widest font-bold text-ink-300 mt-3">Hours</span>
+              </div>
+              <div className="text-xl md:text-3xl font-bold text-ink-200 mb-6">:</div>
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-ink text-white rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-black font-sans shadow-lg">
+                  {String(timeLeft.minutes).padStart(2, "0")}
+                </div>
+                <span className="text-xs uppercase tracking-widest font-bold text-ink-300 mt-3">Mins</span>
+              </div>
+              <div className="text-xl md:text-3xl font-bold text-ink-200 mb-6">:</div>
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-ink text-white rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-black font-sans shadow-lg">
+                  {String(timeLeft.seconds).padStart(2, "0")}
+                </div>
+                <span className="text-xs uppercase tracking-widest font-bold text-ink-300 mt-3">Secs</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

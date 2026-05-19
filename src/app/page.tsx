@@ -119,8 +119,6 @@ export default async function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { name: 'Churnas',  cat: 'Churna',  desc: 'Powders',                img: '/categories/churna.svg' },
-              { name: 'Capsules', cat: 'Capsule', desc: 'Standardised extracts',  img: '/categories/capsule.svg' },
-              { name: 'Arishtas', cat: 'Arishta', desc: 'Fermented preparations', img: '/categories/arishta.svg' },
               { name: 'Tailas',   cat: 'Taila',   desc: 'Medicated oils',          img: '/categories/taila.svg' },
             ].map((c) => (
               <Link

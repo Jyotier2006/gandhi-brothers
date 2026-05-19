@@ -63,8 +63,6 @@ function FilterFields({
           <SelectContent className="rounded-xl shadow-xl bg-white border-white/60">
             <SelectItem value="All">All Categories</SelectItem>
             <SelectItem value="Churna">Churna</SelectItem>
-            <SelectItem value="Capsule">Capsule</SelectItem>
-            <SelectItem value="Arishta">Arishta</SelectItem>
             <SelectItem value="Taila">Taila</SelectItem>
           </SelectContent>
         </Select>
@@ -280,8 +278,6 @@ export function ProductFilters() {
               <SelectContent className="rounded-xl shadow-xl bg-white">
                 <SelectItem value="All">All Categories</SelectItem>
                 <SelectItem value="Churna">Churna</SelectItem>
-                <SelectItem value="Capsule">Capsule</SelectItem>
-                <SelectItem value="Arishta">Arishta</SelectItem>
                 <SelectItem value="Taila">Taila</SelectItem>
               </SelectContent>
             </Select>

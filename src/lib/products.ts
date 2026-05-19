@@ -70,7 +70,7 @@ function rowToProduct(row: any[], headerMap: Map<string, number>): Product | nul
   const pngPath = path.join(process.cwd(), 'public', 'products', `${slug}.png`);
   const hasPng = fs.existsSync(pngPath);
   const ext = hasPng ? 'png' : 'svg';
-  const baseName = hasPng ? slug : String(slug).replace(/-\d+g$/, '');
+  const baseName = hasPng ? slug : String(slug).replace(/-\d+(?:g|ml|cap|tabs)$/, '');
 
   return {
     id: String(skuCode),

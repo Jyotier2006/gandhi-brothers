@@ -5,8 +5,6 @@ import { Leaf, MapPin, Phone, Mail, Instagram } from "lucide-react";
 const SHOP_LINKS = [
   { label: "All Products", href: "/products" },
   { label: "Churnas", href: "/products?category=Churna" },
-  { label: "Capsules", href: "/products?category=Capsule" },
-  { label: "Arishtas", href: "/products?category=Arishta" },
   { label: "Tailas", href: "/products?category=Taila" },
 ];
 
