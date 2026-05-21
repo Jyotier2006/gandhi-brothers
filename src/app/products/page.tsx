@@ -8,6 +8,7 @@ import { ProductGroupCard } from '@/components/product-group-card';
 import { ProductGridSkeleton } from '@/components/product-card-skeleton';
 import { ProductFilters } from '@/components/product-filters';
 import { Breadcrumbs } from '@/components/breadcrumbs';
+import { Reveal } from '@/components/reveal';
 import { SITE_URL } from '@/lib/site-url';
 
 export const revalidate = 60;
@@ -187,8 +188,10 @@ async function ProductGrid({ params }: { params: SearchParams }) {
         Showing {groups.length} {groups.length === 1 ? 'product' : 'products'}
       </p>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-        {groups.map((g) => (
-          <ProductGroupCard key={g.baseName} group={g} />
+        {groups.map((g, i) => (
+          <Reveal key={g.baseName} delay={(i % 6) * 55} className="h-full [&>*]:h-full">
+            <ProductGroupCard group={g} />
+          </Reveal>
         ))}
       </div>
     </>

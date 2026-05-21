@@ -12,6 +12,7 @@ import { ProductPurchasePanel } from "@/components/product-purchase-panel";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ReviewsSection } from "@/components/reviews/reviews-section";
 import { StarRating } from "@/components/reviews/star-rating";
+import { Reveal } from "@/components/reveal";
 import ProductRichContent from "@/components/ProductRichContent";
 import { SITE_URL } from "@/lib/site-url";
 
@@ -267,16 +268,20 @@ export default async function ProductDetailPage({
         {/* ── Related Items ───────────────────────────────────────────────────── */}
         {relatedProducts.length > 0 && (
           <section className="mt-32 pt-16 border-t border-ink-100/50">
-            <h2 className="text-3xl font-bold font-sans text-ink mb-6 text-center lg:text-left">
-              You might also like
-            </h2>
-            <div className="h-1 w-16 bg-mustard rounded-full mb-10 mx-auto lg:mx-0" />
+            <Reveal>
+              <h2 className="text-3xl font-bold font-sans text-ink mb-6 text-center lg:text-left">
+                You might also like
+              </h2>
+              <div className="h-1 w-16 bg-mustard rounded-full mb-10 mx-auto lg:mx-0" />
+            </Reveal>
 
             <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-              {relatedProducts.map((p) => (
-                <div key={p.id} className="transition-all duration-500 hover:-translate-y-2">
-                  <ProductCard product={p} />
-                </div>
+              {relatedProducts.map((p, i) => (
+                <Reveal key={p.id} delay={i * 80} className="h-full [&>*]:h-full">
+                  <div className="h-full transition-all duration-500 hover:-translate-y-2">
+                    <ProductCard product={p} />
+                  </div>
+                </Reveal>
               ))}
             </div>
           </section>

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ArrowRight, Clock } from "lucide-react";
 import { getAllArticles } from "@/lib/blog";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { Reveal } from "@/components/reveal";
 import { SITE_URL } from "@/lib/site-url";
 
 export const metadata: Metadata = {
@@ -68,9 +69,10 @@ export default function BlogIndexPage() {
 
         {/* Lead article */}
         {lead && (
+          <Reveal className="mb-14">
           <Link
             href={`/blog/${lead.slug}`}
-            className="group grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14 rounded-[2rem] overflow-hidden bg-white border border-ink-50 shadow-sm hover:shadow-2xl hover:shadow-ink/5 transition-all duration-500"
+            className="group grid grid-cols-1 lg:grid-cols-2 gap-8 rounded-[2rem] overflow-hidden bg-white border border-ink-50 shadow-sm hover:shadow-2xl hover:shadow-ink/5 transition-all duration-500"
           >
             <div className="relative aspect-[16/10] lg:aspect-auto lg:min-h-[20rem] overflow-hidden bg-gradient-to-br from-cream to-[#F7EFE8]">
               <Image
@@ -102,16 +104,17 @@ export default function BlogIndexPage() {
               </div>
             </div>
           </Link>
+          </Reveal>
         )}
 
         {/* Rest */}
         {rest.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {rest.map((a) => (
+            {rest.map((a, i) => (
+              <Reveal key={a.slug} delay={i * 80} className="h-full [&>*]:h-full">
               <Link
-                key={a.slug}
                 href={`/blog/${a.slug}`}
-                className="group flex flex-col rounded-[1.5rem] overflow-hidden bg-white border border-ink-50 shadow-sm hover:shadow-xl hover:shadow-ink/5 transition-all duration-500"
+                className="group flex flex-col h-full rounded-[1.5rem] overflow-hidden bg-white border border-ink-50 shadow-sm hover:shadow-xl hover:shadow-ink/5 transition-all duration-500 hover:-translate-y-1"
               >
                 <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-cream to-[#F7EFE8]">
                   <Image
@@ -140,6 +143,7 @@ export default function BlogIndexPage() {
                   </div>
                 </div>
               </Link>
+              </Reveal>
             ))}
           </div>
         )}

@@ -175,6 +175,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${poppins.variable} ${lora.variable}`}>
+      <head>
+        {/* Without JS, scroll-reveal elements must never stay hidden. */}
+        <noscript>
+          <style>{`.reveal{opacity:1 !important;transform:none !important}`}</style>
+        </noscript>
+      </head>
       <body className="flex min-h-screen flex-col bg-cream text-ink font-sans antialiased">
         <a
           href="#main-content"
