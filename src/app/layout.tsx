@@ -18,7 +18,7 @@ const lora = Lora({
   display: "swap",
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.gandhibrothers.co.in";
 const SITE_NAME = "Gandhi Brothers";
 const SITE_DESCRIPTION =
   "FDCA-licensed Ayurvedic products by Gandhi Brothers, Junagadh (Licence GA/2079). Shop authentic Churnas, Tailas and classical formulations, made the right way since 1950.";

@@ -11,7 +11,7 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 
 export const revalidate = 60;
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.gandhibrothers.co.in';
 
 type SearchParams = {
   q?: string;

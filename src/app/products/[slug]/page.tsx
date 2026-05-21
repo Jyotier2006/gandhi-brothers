@@ -14,7 +14,7 @@ import { ReviewsSection } from "@/components/reviews/reviews-section";
 import { StarRating } from "@/components/reviews/star-rating";
 import ProductRichContent from "@/components/ProductRichContent";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.gandhibrothers.co.in";
 
 export const generateMetadata = async ({
   params,

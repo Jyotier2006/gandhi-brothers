@@ -3,7 +3,7 @@ import { getAllProducts } from "@/lib/products";
 import { getAllArticles } from "@/lib/blog";
 
 const BASE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://gandhibrothers.co.in"
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.gandhibrothers.co.in"
 ).replace(/\/$/, "");
 
 /** Static routes with their relative change priority. */

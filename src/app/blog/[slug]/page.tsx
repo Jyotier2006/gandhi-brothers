@@ -7,7 +7,7 @@ import { getArticleBySlug, getArticleSlugs, getAllArticles, type ArticleBlock } 
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Button } from "@/components/ui/button";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.gandhibrothers.co.in";
 
 export function generateStaticParams() {
   return getArticleSlugs().map((slug) => ({ slug }));

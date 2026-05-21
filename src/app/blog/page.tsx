@@ -5,7 +5,7 @@ import { ArrowRight, Clock } from "lucide-react";
 import { getAllArticles } from "@/lib/blog";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.gandhibrothers.co.in";
 
 export const metadata: Metadata = {
   title: "Journal — Ayurveda, Explained Plainly",
