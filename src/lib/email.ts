@@ -1,7 +1,5 @@
-import { Resend } from "resend";
 import type { BulkInquiryRecord } from "./bulk-inquiries";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { getResend } from "./resend-client";
 
 const TO_EMAIL = process.env.BULK_ORDER_TO_EMAIL!;
 const FROM_EMAIL = process.env.BULK_ORDER_FROM_EMAIL!;
@@ -14,6 +12,12 @@ const FROM_EMAIL = process.env.BULK_ORDER_FROM_EMAIL!;
 export async function sendBulkInquiryEmails(
   inquiry: BulkInquiryRecord
 ): Promise<void> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn("[email] RESEND_API_KEY not set — skipping bulk inquiry emails.");
+    return;
+  }
+
   // 1. Internal notification to owner
   await resend.emails.send({
     from: FROM_EMAIL,
@@ -277,6 +281,12 @@ ${trackingRow}
  * @returns true if at least one email was accepted by Resend, false otherwise.
  */
 export async function sendOrderEmail(order: OrderEmailPayload): Promise<boolean> {
+  const resend = getResend();
+  if (!resend) {
+    console.warn("[email] RESEND_API_KEY not set — skipping order emails.");
+    return false;
+  }
+
   const from = process.env.FROM_EMAIL || "onboarding@resend.dev";
   const adminEmails = (process.env.ADMIN_EMAILS || "")
     .split(",")

@@ -1,7 +1,6 @@
 import { google } from "googleapis";
-import { Resend } from "resend";
+import { getResend } from "./resend-client";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const TO_EMAIL = "support@gandhibrothers.co.in";
 const FROM_EMAIL = process.env.BULK_ORDER_FROM_EMAIL || "onboarding@resend.dev";
 
@@ -58,6 +57,12 @@ export async function saveInquiryToSheet(inquiry: InquiryRecord) {
 }
 
 export async function sendInquiryEmails(inquiry: InquiryRecord) {
+  const resend = getResend();
+  if (!resend) {
+    console.warn("[inquiries] RESEND_API_KEY not set — skipping inquiry emails.");
+    return;
+  }
+
   const prefixMap: Record<string, string> = {
     "Doctor / Vaidya / Clinic": "[Sales]",
     "Retailer / Pharmacy": "[Sales]",
