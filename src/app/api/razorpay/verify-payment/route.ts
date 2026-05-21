@@ -70,17 +70,28 @@ export async function POST(req: Request) {
       const products = await getProductsByIds(productIds);
       let subtotal = 0;
 
+      // Captured separately for the stock-movement audit log (needs pack size).
+      const stockChanges: { skuCode: string; productName: string; packSize: string; quantity: number }[] = [];
+
       for (const line of items) {
         const product = products.find((p) => p.id === line.productId);
         if (!product) return NextResponse.json({ error: `Product missing` }, { status: 400 });
         const price = effectivePrice(product.price, product.discount_price);
         subtotal += price * line.quantity;
+        // Conform to the OrderLineItem shape so saveOrderToSheet/email read the right fields.
         orderItems.push({
           productId: product.id,
+          slug: product.slug,
+          name: product.name,
+          price,
+          quantity: line.quantity,
+          image: product.image,
+        });
+        stockChanges.push({
+          skuCode: product.id,
           productName: product.name,
           packSize: (product as any).pack_size ?? '',
           quantity: line.quantity,
-          price,
         });
       }
 
@@ -88,10 +99,7 @@ export async function POST(req: Request) {
       const orderId = `GB${Date.now()}${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
 
       try {
-        await applyStockChanges(orderItems.map((oi) => ({
-          skuCode: oi.productId, productName: oi.productName, packSize: oi.packSize,
-          quantity: oi.quantity, reason: `Order ${orderId}`,
-        })));
+        await applyStockChanges(stockChanges.map((sc) => ({ ...sc, reason: `Order ${orderId}` })));
       } catch (e) {
         console.error('Stock decrement error:', e);
       }

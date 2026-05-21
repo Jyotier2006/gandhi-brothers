@@ -7,9 +7,16 @@ import { Phone, Mail, MapPin, Instagram, Clock } from 'lucide-react';
 import { ContactForm } from '@/components/contact-form';
 
 export const metadata = {
-  title: 'Contact Us — Gandhi Brothers',
+  title: 'Contact Us — Gandhi Brothers, Junagadh',
   description:
     'Get in touch with Gandhi Brothers, Junagadh. Phone, email, and a contact form for product, order, and wholesale enquiries.',
+  alternates: { canonical: '/contact' },
+  openGraph: {
+    title: 'Contact Gandhi Brothers, Junagadh',
+    description:
+      'Phone, email, and address for Gandhi Brothers — FDCA-licensed Ayurvedic manufacturer in Junagadh, Gujarat.',
+    url: '/contact',
+  },
 };
 
 export default function ContactPage() {

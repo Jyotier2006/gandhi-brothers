@@ -4,8 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Our Heritage | Gandhi Brothers",
-  description: "Three generations, seventy-five years, one family. The story of JGV and Gandhi Brothers Ayurvedic practice since 1950.",
+  title: "Our Heritage — 75 Years of Ayurveda in Junagadh",
+  description: "Three generations, seventy-five years, one family. The story of JGV and Gandhi Brothers Ayurvedic practice in Junagadh since 1950.",
+  alternates: { canonical: "/heritage" },
+  openGraph: {
+    title: "Our Heritage — Gandhi Brothers Ayurveda since 1950",
+    description: "Three generations, seventy-five years, one family. The story of JGV and Gandhi Brothers in Junagadh.",
+    url: "/heritage",
+  },
 };
 
 const TIMELINE_ENTRIES = [
@@ -21,7 +27,7 @@ const TIMELINE_ENTRIES = [
     image: "/heritage/heritage-1950-1973-first-25-years.png",
     eyebrow: "LEGACY",
     title: "The first twenty-five years",
-    body: "For a quarter-cenThe house's reputation was built on what it refused to keep: any dravya that didn't match in colour, scent, taste, or fracture went back where it came from.tury the work was almost entirely retail. Whole haritaki came in by the sack from Kathiawar, ashwagandha root from Mandvi, vidanga from the Western Ghats. Each lot was stored, identified, weighed, twisted into paper packets, and handed across the counter — the same trade that had been done on the same lanes for centuries. ",
+    body: "For a quarter-century the work was almost entirely retail. Whole haritaki came in by the sack from Kathiawar, ashwagandha root from Mandvi, vidanga from the Western Ghats. Each lot was stored, identified, weighed, twisted into paper packets, and handed across the counter — the same trade that had been done on the same lanes for centuries. The house's reputation was built on what it refused to keep: any dravya that didn't match in colour, scent, taste, or fracture went back where it came from.",
   },
   {
     year: "1974 – 1989",

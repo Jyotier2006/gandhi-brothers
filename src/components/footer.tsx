@@ -10,7 +10,9 @@ const SHOP_LINKS = [
 
 const COMPANY_LINKS = [
   { label: "About Us", href: "/about" },
+  { label: "Journal", href: "/blog" },
   { label: "Certifications", href: "/certifications" },
+  { label: "FAQ", href: "/faq" },
   { label: "Inquiries", href: "/inquiry" },
   { label: "Contact", href: "/contact" },
 ];

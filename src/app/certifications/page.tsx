@@ -11,9 +11,16 @@ import { ShieldCheck, FileCheck2, Award, Factory } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export const metadata = {
-  title: 'Certifications & Compliance — Gandhi Brothers',
+  title: 'Certifications & Compliance — FDCA Licence GA/2079',
   description:
     'FDCA Drug Manufacturing Licence GA/2079, Schedule T GMP compliance, classical Ayurvedic standards. Full regulatory documentation for Gandhi Brothers Ayurveda.',
+  alternates: { canonical: '/certifications' },
+  openGraph: {
+    title: 'Certifications & Compliance — Gandhi Brothers Ayurveda',
+    description:
+      'FDCA Drug Manufacturing Licence GA/2079, Schedule T GMP compliance, and classical Ayurvedic standards.',
+    url: '/certifications',
+  },
 };
 
 const CREDENTIALS = [

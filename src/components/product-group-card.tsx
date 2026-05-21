@@ -3,11 +3,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
-import { ShoppingBag, X, Package, ArrowRight } from 'lucide-react';
+import { ShoppingBag, X, Package, ArrowRight, Minus, Plus } from 'lucide-react';
 import type { Product, ProductGroup } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCartStore } from '@/lib/store/cart-store';
+import { WishlistButton } from '@/components/wishlist-button';
 import { toast } from 'sonner';
 import { calculateDiscount, effectivePrice, formatINR, cn } from '@/lib/utils';
 
@@ -48,9 +49,19 @@ export function ProductGroupCard({ group }: { group: ProductGroup }) {
   return (
     <>
       {/* ── Card ── */}
-      <button
+      <div
+        role="button"
+        tabIndex={0}
+        aria-haspopup="dialog"
+        aria-label={`View pack sizes for ${group.baseName}`}
         onClick={() => setIsOpen(true)}
-        className="group flex flex-col h-full rounded-sm bg-white border border-ink-50 shadow-sm hover:shadow-2xl hover:shadow-ink/5 transition-all duration-500 overflow-hidden text-left w-full"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsOpen(true);
+          }
+        }}
+        className="group flex flex-col h-full rounded-sm bg-white border border-ink-50 shadow-sm hover:shadow-2xl hover:shadow-ink/5 transition-all duration-500 overflow-hidden text-left w-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:ring-offset-2"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -80,6 +91,20 @@ export function ProductGroupCard({ group }: { group: ProductGroup }) {
               Offer
             </Badge>
           )}
+
+          {/* Wishlist toggle */}
+          <div className="absolute top-3 right-3 z-20">
+            <WishlistButton
+              item={{
+                productId: group.variants[0].id,
+                slug: group.slug,
+                name: group.baseName,
+                price: minPrice,
+                image: group.image,
+                category: group.category,
+              }}
+            />
+          </div>
           {!anyInStock && (
             <div className="absolute inset-0 bg-ink/60 backdrop-blur-[2px] flex items-center justify-center z-10">
               <Badge
@@ -123,7 +148,7 @@ export function ProductGroupCard({ group }: { group: ProductGroup }) {
             </div>
           </div>
         </div>
-      </button>
+      </div>
 
       {/* ── Modal Overlay ── */}
       {isOpen && (
@@ -217,6 +242,7 @@ function VariantRow({
   onClose: () => void;
 }) {
   const addItem = useCartStore((s) => s.addItem);
+  const [qty, setQty] = useState(1);
   const finalPrice = effectivePrice(variant.price, variant.discount_price);
   const discount = calculateDiscount(variant.price, variant.discount_price);
   const inStock = variant.stock > 0;
@@ -229,10 +255,10 @@ function VariantRow({
       name: variant.name,
       price: finalPrice,
       image: variant.image,
-      quantity: 1,
+      quantity: qty,
       stock: variant.stock,
     });
-    toast.success(`${variant.name} added to cart`);
+    toast.success(`${variant.name} (×${qty}) added to cart`);
     onClose();
   }
 
@@ -260,6 +286,33 @@ function VariantRow({
           )}
         </div>
       </div>
+
+      {inStock && (
+        <div className="flex items-center rounded-lg border border-ink-100 bg-white shadow-sm overflow-hidden h-9 shrink-0">
+          <button
+            type="button"
+            onClick={() => setQty((q) => Math.max(1, q - 1))}
+            disabled={qty <= 1}
+            aria-label="Decrease quantity"
+            className="flex h-full w-7 items-center justify-center text-ink hover:bg-cream disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+          >
+            <Minus className="h-3.5 w-3.5" />
+          </button>
+          <div className="px-2 min-w-[1.75rem] text-center text-xs font-bold border-x border-ink-100/50">
+            {qty}
+          </div>
+          <button
+            type="button"
+            onClick={() => setQty((q) => Math.min(variant.stock, q + 1))}
+            disabled={qty >= variant.stock}
+            aria-label="Increase quantity"
+            className="flex h-full w-7 items-center justify-center text-ink hover:bg-cream disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
       <Button
         onClick={handleAdd}
         disabled={!inStock}

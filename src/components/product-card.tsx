@@ -8,6 +8,7 @@ import type { Product } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCartStore } from '@/lib/store/cart-store';
+import { WishlistButton } from '@/components/wishlist-button';
 import { toast } from 'sonner';
 import { calculateDiscount, effectivePrice, formatINR } from '@/lib/utils';
 import { cn } from '@/lib/utils';
@@ -70,6 +71,20 @@ export function ProductCard({ product }: { product: Product }) {
             {discountPct}% OFF
           </Badge>
         )}
+
+        {/* Wishlist toggle */}
+        <div className="absolute top-3 right-3 z-20">
+          <WishlistButton
+            item={{
+              productId: product.id,
+              slug: product.slug,
+              name: product.name,
+              price: finalPrice,
+              image: product.image,
+              category: product.category,
+            }}
+          />
+        </div>
         {!inStock && (
           <div className="absolute inset-0 bg-ink/60 backdrop-blur-[2px] flex items-center justify-center z-10 transition-colors">
             <Badge variant="destructive" className="font-bold text-sm shadow-xl shadow-red-900/20 px-4 py-1.5 rounded-full border border-white/20">

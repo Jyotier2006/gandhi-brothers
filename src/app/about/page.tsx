@@ -13,9 +13,16 @@ import { Leaf, ShieldCheck, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export const metadata = {
-  title: 'About — Gandhi Brothers',
+  title: 'About — Three Generations of Ayurveda in Junagadh',
   description:
     'Three generations of authentic Ayurvedic practice from Junagadh, Gujarat. FDCA-licensed manufacturing, classical formulations, modern accountability.',
+  alternates: { canonical: '/about' },
+  openGraph: {
+    title: 'About Gandhi Brothers — Ayurveda in Junagadh since 1950',
+    description:
+      'Three generations of authentic Ayurvedic practice from Junagadh, Gujarat. FDCA-licensed manufacturing and classical formulations.',
+    url: '/about',
+  },
 };
 
 const PRINCIPLES = [

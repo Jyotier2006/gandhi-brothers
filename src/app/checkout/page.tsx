@@ -47,6 +47,7 @@ export default function CheckoutPage() {
   const [hydrated, setHydrated] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<CheckoutAddress>(INITIAL_ADDRESS);
+  const [errors, setErrors] = useState<Partial<Record<keyof CheckoutAddress, string>>>({});
   const [shipping, setShipping] = useState<{ rate: number; estimatedDays: number } | null>(null);
 
   const items = useCartStore((s) => s.items);
@@ -94,6 +95,27 @@ export default function CheckoutPage() {
     setHydrated(true);
   }, []);
 
+  const validateField = (name: keyof CheckoutAddress, value: string): string | undefined => {
+    switch (name) {
+      case "name":
+        return value.trim() ? undefined : "Full name is required.";
+      case "email":
+        return /^\S+@\S+\.\S+$/.test(value) ? undefined : "Enter a valid email address.";
+      case "phone":
+        return /^[6-9]\d{9}$/.test(value) ? undefined : "Enter a valid 10-digit Indian mobile number.";
+      case "address":
+        return value.trim() ? undefined : "Address is required.";
+      case "city":
+        return value.trim() ? undefined : "City is required.";
+      case "state":
+        return value.trim() ? undefined : "State is required.";
+      case "pincode":
+        return /^\d{6}$/.test(value) ? undefined : "Enter a valid 6-digit PIN code.";
+      default:
+        return undefined;
+    }
+  };
+
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     let { name, value } = e.target;
     if (name === "pincode" || name === "phone") {
@@ -102,29 +124,40 @@ export default function CheckoutPage() {
     const newForm = { ...form, [name]: value };
     setForm(newForm);
     localStorage.setItem("gandhi-checkout", JSON.stringify(newForm));
+    // Clear the field's error as the user corrects it.
+    if (errors[name as keyof CheckoutAddress]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
   };
 
-  const validate = (): string | null => {
-    if (!form.name.trim()) return "Full name is required.";
-    if (!/^\S+@\S+\.\S+$/.test(form.email)) return "Please enter a valid email address.";
-    if (!/^[6-9]\d{9}$/.test(form.phone)) return "Please enter a valid 10-digit Indian mobile number.";
-    if (!form.address.trim()) return "Address is required.";
-    if (!form.city.trim()) return "City is required.";
-    if (!form.state.trim()) return "State is required.";
-    if (!/^\d{6}$/.test(form.pincode)) return "Please enter a valid 6-digit PIN code.";
-    return null;
+  const handleFieldBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const name = e.target.name as keyof CheckoutAddress;
+    setErrors((prev) => ({ ...prev, [name]: validateField(name, form[name]) }));
+  };
+
+  const validateAll = (): Partial<Record<keyof CheckoutAddress, string>> => {
+    const next: Partial<Record<keyof CheckoutAddress, string>> = {};
+    (Object.keys(form) as (keyof CheckoutAddress)[]).forEach((key) => {
+      const msg = validateField(key, form[key]);
+      if (msg) next[key] = msg;
+    });
+    return next;
   };
 
   const placeOrder = async () => {
-    const errorMsg = validate();
-    if (errorMsg) {
-      toast.error(errorMsg);
+    const found = validateAll();
+    if (Object.keys(found).length > 0) {
+      setErrors(found);
+      toast.error(Object.values(found)[0]);
+      // Bring the first invalid field into view.
+      const firstKey = Object.keys(found)[0];
+      document.getElementById(firstKey)?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
+    setErrors({});
 
     // Block actual payment processing and show the launch timer
     setTimerOpen(true);
-
   };
 
   if (!hydrated) {
@@ -189,55 +222,70 @@ export default function CheckoutPage() {
                     <Label htmlFor="name" className="text-ink/80 font-semibold ml-1">Full name</Label>
                     <Input
                       id="name" name="name"
-                      value={form.name} onChange={handleFormChange}
+                      value={form.name} onChange={handleFormChange} onBlur={handleFieldBlur}
                       placeholder="e.g. Rahul Patel"
                       disabled={submitting}
-                      className="h-14 rounded-2xl bg-cream/30 border-ink-100/60 focus-visible:ring-terracotta/30 focus-visible:bg-white transition-colors"
+                      aria-invalid={!!errors.name}
+                      aria-describedby={errors.name ? "name-error" : undefined}
+                      className={cn("h-14 rounded-2xl bg-cream/30 border-ink-100/60 focus-visible:ring-terracotta/30 focus-visible:bg-white transition-colors", errors.name && "border-red-400 focus-visible:ring-red-300")}
                     />
+                    {errors.name && <p id="name-error" className="text-sm text-red-500 ml-1">{errors.name}</p>}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-ink/80 font-semibold ml-1">Email address</Label>
                     <Input
                       id="email" name="email" type="email"
-                      value={form.email} onChange={handleFormChange}
+                      value={form.email} onChange={handleFormChange} onBlur={handleFieldBlur}
                       placeholder="name@example.com"
                       disabled={submitting}
-                      className="h-14 rounded-2xl bg-cream/30 border-ink-100/60 focus-visible:ring-terracotta/30 focus-visible:bg-white transition-colors"
+                      aria-invalid={!!errors.email}
+                      aria-describedby={errors.email ? "email-error" : undefined}
+                      className={cn("h-14 rounded-2xl bg-cream/30 border-ink-100/60 focus-visible:ring-terracotta/30 focus-visible:bg-white transition-colors", errors.email && "border-red-400 focus-visible:ring-red-300")}
                     />
+                    {errors.email && <p id="email-error" className="text-sm text-red-500 ml-1">{errors.email}</p>}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="phone" className="text-ink/80 font-semibold ml-1">Phone number</Label>
                     <Input
                       id="phone" name="phone" type="tel" maxLength={10}
-                      value={form.phone} onChange={handleFormChange}
+                      value={form.phone} onChange={handleFormChange} onBlur={handleFieldBlur}
                       placeholder="10-digit mobile"
                       disabled={submitting}
-                      className="h-14 rounded-2xl bg-cream/30 border-ink-100/60 focus-visible:ring-terracotta/30 focus-visible:bg-white transition-colors"
+                      aria-invalid={!!errors.phone}
+                      aria-describedby={errors.phone ? "phone-error" : undefined}
+                      className={cn("h-14 rounded-2xl bg-cream/30 border-ink-100/60 focus-visible:ring-terracotta/30 focus-visible:bg-white transition-colors", errors.phone && "border-red-400 focus-visible:ring-red-300")}
                     />
+                    {errors.phone && <p id="phone-error" className="text-sm text-red-500 ml-1">{errors.phone}</p>}
                   </div>
 
                   <div className="sm:col-span-2 space-y-2 pt-2">
                     <Label htmlFor="address" className="text-ink/80 font-semibold ml-1">Complete address</Label>
                     <Input
                       id="address" name="address"
-                      value={form.address} onChange={handleFormChange}
+                      value={form.address} onChange={handleFormChange} onBlur={handleFieldBlur}
                       placeholder="House no, street, locality"
                       disabled={submitting}
-                      className="h-14 rounded-2xl bg-cream/30 border-ink-100/60 focus-visible:ring-terracotta/30 focus-visible:bg-white transition-colors"
+                      aria-invalid={!!errors.address}
+                      aria-describedby={errors.address ? "address-error" : undefined}
+                      className={cn("h-14 rounded-2xl bg-cream/30 border-ink-100/60 focus-visible:ring-terracotta/30 focus-visible:bg-white transition-colors", errors.address && "border-red-400 focus-visible:ring-red-300")}
                     />
+                    {errors.address && <p id="address-error" className="text-sm text-red-500 ml-1">{errors.address}</p>}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="city" className="text-ink/80 font-semibold ml-1">City</Label>
                     <Input
                       id="city" name="city"
-                      value={form.city} onChange={handleFormChange}
+                      value={form.city} onChange={handleFormChange} onBlur={handleFieldBlur}
                       placeholder="e.g. Junagadh"
                       disabled={submitting}
-                      className="h-14 rounded-2xl bg-cream/30 border-ink-100/60 focus-visible:ring-terracotta/30 focus-visible:bg-white transition-colors"
+                      aria-invalid={!!errors.city}
+                      aria-describedby={errors.city ? "city-error" : undefined}
+                      className={cn("h-14 rounded-2xl bg-cream/30 border-ink-100/60 focus-visible:ring-terracotta/30 focus-visible:bg-white transition-colors", errors.city && "border-red-400 focus-visible:ring-red-300")}
                     />
+                    {errors.city && <p id="city-error" className="text-sm text-red-500 ml-1">{errors.city}</p>}
                   </div>
 
                   <div className="space-y-2">

@@ -267,6 +267,68 @@ function groupProducts(products: Product[]): ProductGroup[] {
   return groups;
 }
 
+/**
+ * Resolve the full pack-size group that a given slug belongs to, plus the
+ * specific variant the slug points at. Powers the product detail page's
+ * pack-size selector.
+ */
+export async function getProductGroupBySlug(
+  slug: string
+): Promise<{ group: ProductGroup; current: Product } | undefined> {
+  const all = await getAllProducts();
+  const current = all.find((p) => p.slug === slug);
+  if (!current) return undefined;
+
+  const baseName = stripPackSize(current.name);
+  const eff = (p: Product) =>
+    p.discount_price && p.discount_price < p.price ? p.discount_price : p.price;
+
+  const variants = all
+    .filter((p) => stripPackSize(p.name) === baseName)
+    .sort((a, b) => eff(a) - eff(b));
+
+  const group: ProductGroup = {
+    baseName,
+    category: current.category,
+    image: current.image,
+    slug: current.slug,
+    featured: variants.some((v) => v.featured),
+    variants,
+  };
+
+  return { group, current };
+}
+
+/**
+ * Related products for the detail page. Prefers other base products in the
+ * same category, then fills from the wider catalogue. Never returns other
+ * pack-size variants of the same product.
+ */
+export async function getRelatedProducts(
+  product: Product,
+  limit = 4
+): Promise<Product[]> {
+  const all = await getAllProducts();
+  const baseName = stripPackSize(product.name);
+  const seenBase = new Set<string>([baseName]);
+  const related: Product[] = [];
+
+  const pushDistinct = (pool: Product[]) => {
+    for (const p of pool) {
+      if (related.length >= limit) break;
+      const bn = stripPackSize(p.name);
+      if (seenBase.has(bn)) continue;
+      seenBase.add(bn);
+      related.push(p);
+    }
+  };
+
+  pushDistinct(all.filter((p) => p.category === product.category));
+  if (related.length < limit) pushDistinct(all);
+
+  return related;
+}
+
 export async function searchGroupedProducts(params: SearchParams): Promise<ProductGroup[]> {
   let products = await getAllProducts();
 

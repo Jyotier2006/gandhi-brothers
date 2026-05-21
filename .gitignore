@@ -28,6 +28,14 @@ yarn-error.log*
 # Vercel
 .vercel
 
+# Claude Code local settings/memory
+.claude/
+
+# Local server logs
+server.log
+
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+.env*.local
+.env

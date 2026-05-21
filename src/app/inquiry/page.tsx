@@ -2,8 +2,14 @@ import InquiryForm from "@/components/inquiry-form";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Inquiries | Gandhi Brothers",
-  description: "Identify your role and tell us about your requirement. We'll route your inquiry to the right desk.",
+  title: "Wholesale & Bulk Inquiries | Gandhi Brothers",
+  description: "Wholesale, practitioner, and bulk-order inquiries for Gandhi Brothers Ayurvedic products. Tell us your requirement and we'll route it to the right desk.",
+  alternates: { canonical: "/inquiry" },
+  openGraph: {
+    title: "Wholesale & Bulk Inquiries | Gandhi Brothers",
+    description: "Wholesale, practitioner, and bulk-order inquiries for Gandhi Brothers Ayurvedic products.",
+    url: "/inquiry",
+  },
 };
 
 export default function InquiryPage() {
