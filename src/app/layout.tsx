@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/toaster";
+import { SITE_URL } from "@/lib/site-url";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -18,7 +19,6 @@ const lora = Lora({
   display: "swap",
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.gandhibrothers.co.in";
 const SITE_NAME = "Gandhi Brothers";
 const SITE_DESCRIPTION =
   "FDCA-licensed Ayurvedic products by Gandhi Brothers, Junagadh (Licence GA/2079). Shop authentic Churnas, Tailas and classical formulations, made the right way since 1950.";

@@ -6,8 +6,7 @@ import { Clock, ArrowLeft, ArrowRight } from "lucide-react";
 import { getArticleBySlug, getArticleSlugs, getAllArticles, type ArticleBlock } from "@/lib/blog";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Button } from "@/components/ui/button";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.gandhibrothers.co.in";
+import { SITE_URL } from "@/lib/site-url";
 
 export function generateStaticParams() {
   return getArticleSlugs().map((slug) => ({ slug }));

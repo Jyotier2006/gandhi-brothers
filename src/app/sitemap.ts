@@ -1,10 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getAllProducts } from "@/lib/products";
 import { getAllArticles } from "@/lib/blog";
-
-const BASE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.gandhibrothers.co.in"
-).replace(/\/$/, "");
+import { SITE_URL as BASE_URL } from "@/lib/site-url";
 
 /** Static routes with their relative change priority. */
 const STATIC_ROUTES: { path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] }[] = [

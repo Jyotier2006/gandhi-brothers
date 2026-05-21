@@ -8,10 +8,9 @@ import { ProductGroupCard } from '@/components/product-group-card';
 import { ProductGridSkeleton } from '@/components/product-card-skeleton';
 import { ProductFilters } from '@/components/product-filters';
 import { Breadcrumbs } from '@/components/breadcrumbs';
+import { SITE_URL } from '@/lib/site-url';
 
 export const revalidate = 60;
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.gandhibrothers.co.in';
 
 type SearchParams = {
   q?: string;

@@ -4,8 +4,7 @@ import Image from "next/image";
 import { ArrowRight, Clock } from "lucide-react";
 import { getAllArticles } from "@/lib/blog";
 import { Breadcrumbs } from "@/components/breadcrumbs";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.gandhibrothers.co.in";
+import { SITE_URL } from "@/lib/site-url";
 
 export const metadata: Metadata = {
   title: "Journal — Ayurveda, Explained Plainly",

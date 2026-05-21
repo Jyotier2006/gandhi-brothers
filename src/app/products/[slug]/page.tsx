@@ -13,8 +13,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ReviewsSection } from "@/components/reviews/reviews-section";
 import { StarRating } from "@/components/reviews/star-rating";
 import ProductRichContent from "@/components/ProductRichContent";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.gandhibrothers.co.in";
+import { SITE_URL } from "@/lib/site-url";
 
 export const generateMetadata = async ({
   params,
