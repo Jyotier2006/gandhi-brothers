@@ -94,13 +94,14 @@ function FilterFields({
       <div className="space-y-1.5">
         <Label className="text-xs font-bold text-ink uppercase tracking-widest">Sort</Label>
         <Select
-          value={searchParams.get("sort") || "latest"}
+          value={searchParams.get("sort") || "bestselling"}
           onValueChange={(val) => update("sort", val)}
         >
           <SelectTrigger className="h-11 w-full rounded-xl bg-[#F9F7F3] border-[#A69279]/20 text-ink focus:ring-[#D4A351]/40">
             <SelectValue placeholder="Sort order" />
           </SelectTrigger>
           <SelectContent className="rounded-xl shadow-xl bg-white border-white/60">
+            <SelectItem value="bestselling">Best Sellers</SelectItem>
             <SelectItem value="latest">Newest Arrivals</SelectItem>
             <SelectItem value="price-asc">Price: Low to High</SelectItem>
             <SelectItem value="price-desc">Price: High to Low</SelectItem>
@@ -299,11 +300,12 @@ export function ProductFilters() {
           <div className="space-y-1.5">
             <Label className="text-xs font-bold text-ink uppercase tracking-widest">Sort</Label>
             <div className="flex gap-2">
-              <Select value={searchParams.get("sort") || "latest"} onValueChange={(val) => update("sort", val)}>
+              <Select value={searchParams.get("sort") || "bestselling"} onValueChange={(val) => update("sort", val)}>
                 <SelectTrigger className="h-11 flex-1 rounded-xl bg-[#F9F7F3] border-[#A69279]/20 text-ink focus:ring-[#D4A351]/40">
                   <SelectValue placeholder="Sort" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl shadow-xl bg-white">
+                  <SelectItem value="bestselling">Best Sellers</SelectItem>
                   <SelectItem value="latest">Newest Arrivals</SelectItem>
                   <SelectItem value="price-asc">Price: Low → High</SelectItem>
                   <SelectItem value="price-desc">Price: High → Low</SelectItem>

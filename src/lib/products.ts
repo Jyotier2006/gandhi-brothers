@@ -14,6 +14,8 @@
 import { google } from 'googleapis';
 import type { Product, ProductGroup } from './types';
 import { deriveWeightGrams } from './weight';
+import { stripPackSize } from './utils';
+import { getSalesTally, getBestsellerNames } from './sales';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -228,11 +230,6 @@ export function invalidateProductCache() {
 
 // ── Grouped products ──────────────────────────────────────────────────────
 
-/** Strip the pack-size suffix from the product name: "Ashwagandha Churna (200g)" → "Ashwagandha Churna" */
-function stripPackSize(name: string): string {
-  return name.replace(/\s*\([\d.]+\s*(?:g|gm|kg|ml|l|tabs|capsules|cap)\)$/i, '').trim();
-}
-
 function groupProducts(products: Product[]): ProductGroup[] {
   const map = new Map<string, Product[]>();
 
@@ -352,7 +349,26 @@ export async function searchGroupedProducts(params: SearchParams): Promise<Produ
     if (Number.isFinite(max)) products = products.filter((p) => eff(p) <= max);
   }
 
-  let groups = groupProducts(products);
+  const groups = groupProducts(products);
+
+  // ── Best-seller signal from real orders (empty Maps when no sales/data) ──
+  const [tally, bestsellerNames] = await Promise.all([
+    getSalesTally(),
+    getBestsellerNames(8),
+  ]);
+  for (const g of groups) {
+    g.unitsSold = tally.get(g.baseName) ?? 0;
+    g.bestseller = bestsellerNames.has(g.baseName);
+  }
+
+  // Most-sold first; tie-break (incl. the all-zero "no sales yet" case) keeps a
+  // stable, sensible order: featured products, then alphabetical.
+  const byBestselling = (a: ProductGroup, b: ProductGroup) => {
+    const diff = (b.unitsSold ?? 0) - (a.unitsSold ?? 0);
+    if (diff !== 0) return diff;
+    if (a.featured !== b.featured) return a.featured ? -1 : 1;
+    return a.baseName.localeCompare(b.baseName);
+  };
 
   switch (params.sort) {
     case 'price-asc':
@@ -360,6 +376,14 @@ export async function searchGroupedProducts(params: SearchParams): Promise<Produ
       break;
     case 'price-desc':
       groups.sort((a, b) => eff(b.variants[0]) - eff(a.variants[0]));
+      break;
+    case 'latest':
+      // Keep natural catalogue (sheet) order.
+      break;
+    case 'bestselling':
+    default:
+      // Default ordering across the shop is best-sellers first.
+      groups.sort(byBestselling);
       break;
   }
 

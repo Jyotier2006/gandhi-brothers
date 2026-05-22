@@ -28,6 +28,19 @@ export function calculateDiscount(price: number, discount: number | null): numbe
   return Math.round(((price - discount) / price) * 100);
 }
 
+// ── Product naming ──────────────────────────────────────────────────────────
+/**
+ * Strip the pack-size suffix from a product name so all pack-size variants
+ * collapse to one base name, e.g. "Ashwagandha Churna (200g)" → "Ashwagandha Churna".
+ * Shared by the catalogue grouping and the sales tally so they key off the
+ * exact same base name.
+ */
+export function stripPackSize(name: string): string {
+  return name
+    .replace(/\s*\([\d.]+\s*(?:g|gm|kg|ml|l|tabs|capsules|cap)\)$/i, "")
+    .trim();
+}
+
 // NOTE: calculateDelivery() has been REMOVED.
 // Shipping is now fetched live from Shiprocket via /api/shipping/quote
 // based on customer's pincode and cart weight.

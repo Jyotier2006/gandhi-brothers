@@ -32,6 +32,10 @@ export type ProductGroup = {
   featured: boolean;
   /** All pack-size variants of this product */
   variants: Product[];
+  /** Total units sold across all pack sizes (from the Orders sheet). 0 if no sales/data. */
+  unitsSold?: number;
+  /** True when this is among the top sellers catalogue-wide (drives the "Bestseller" badge). */
+  bestseller?: boolean;
 };
 
 
