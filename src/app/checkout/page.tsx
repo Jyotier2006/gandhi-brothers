@@ -12,7 +12,6 @@ import { formatINR } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { X, Clock } from "lucide-react";
 import { PincodeCheck } from "@/components/pincode-check";
 import type { CheckoutAddress } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -54,34 +53,8 @@ export default function CheckoutPage() {
   const getSubtotal = useCartStore((s) => s.getSubtotal);
   const clearCart = useCartStore((s) => s.clearCart);
 
-  const [timerOpen, setTimerOpen] = useState(false);
-  const [timeLeft, setTimeLeft] = useState({ days: 2, hours: 0, minutes: 0, seconds: 0 });
-
-  useEffect(() => {
-    let targetStr = localStorage.getItem("gandhi-launch-target");
-    if (!targetStr) {
-      targetStr = (Date.now() + 2 * 24 * 60 * 60 * 1000).toString();
-      localStorage.setItem("gandhi-launch-target", targetStr);
-    }
-    const target = parseInt(targetStr, 10);
-
-    const interval = setInterval(() => {
-      const now = Date.now();
-      const diff = target - now;
-      if (diff <= 0) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-        clearInterval(interval);
-      } else {
-        setTimeLeft({
-          days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((diff / 1000 / 60) % 60),
-          seconds: Math.floor((diff / 1000) % 60),
-        });
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+  // Shown after a successful payment while we verify + create the order server-side.
+  const [confirming, setConfirming] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("gandhi-checkout");
@@ -156,8 +129,92 @@ export default function CheckoutPage() {
     }
     setErrors({});
 
-    // Block actual payment processing and show the launch timer
-    setTimerOpen(true);
+    setSubmitting(true);
+    const loadingId = toast.loading("Starting secure checkout…");
+    const cartLines = items.map((i) => ({ productId: i.productId, quantity: i.quantity }));
+
+    try {
+      // 1. Create the order server-side. The server is the single source of
+      //    truth for pricing + shipping — we never trust client-sent totals.
+      const res = await fetch("/api/razorpay/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: cartLines, pincode: form.pincode }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not start checkout. Please try again.");
+
+      if (typeof window === "undefined" || !window.Razorpay) {
+        throw new Error("Payment is still loading — please try again in a moment.");
+      }
+
+      const serverShipping = data.breakdown?.shipping ?? shippingCost;
+      toast.dismiss(loadingId);
+
+      // 2. Open the Razorpay checkout widget against that order.
+      const rzp = new window.Razorpay({
+        key: data.keyId,
+        amount: data.amount,
+        currency: data.currency,
+        order_id: data.orderId,
+        name: "Gandhi Brothers",
+        description: "Ayurvedic order",
+        image: "/logo.png",
+        prefill: { name: form.name, email: form.email, contact: form.phone },
+        notes: { address: `${form.address}, ${form.city}, ${form.state} ${form.pincode}` },
+        theme: { color: "#A69279" },
+        handler: async (response: {
+          razorpay_order_id: string;
+          razorpay_payment_id: string;
+          razorpay_signature: string;
+        }) => {
+          // 3. Payment succeeded on Razorpay's side — verify the signature
+          //    server-side, which also decrements stock, ships, and emails.
+          setConfirming(true);
+          try {
+            const verifyRes = await fetch("/api/razorpay/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                items: cartLines,
+                address: form,
+                shippingCost: serverShipping,
+              }),
+            });
+            const verifyData = await verifyRes.json();
+            if (!verifyRes.ok || !verifyData.success) {
+              throw new Error(verifyData.error || "We could not confirm your payment automatically.");
+            }
+            clearCart();
+            localStorage.removeItem("gandhi-checkout");
+            router.push(`/order-success?orderId=${encodeURIComponent(verifyData.orderId)}`);
+          } catch (err) {
+            const reason = err instanceof Error ? err.message : "We could not confirm your payment.";
+            router.push(`/order-failed?reason=${encodeURIComponent(reason)}`);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setSubmitting(false);
+            toast("Payment cancelled — your cart is saved.");
+          },
+        },
+      });
+
+      rzp.on("payment.failed", (resp: { error?: { description?: string } }) => {
+        const reason = resp?.error?.description || "Your payment was declined. Please try again.";
+        router.push(`/order-failed?reason=${encodeURIComponent(reason)}`);
+      });
+
+      rzp.open();
+    } catch (err) {
+      toast.dismiss(loadingId);
+      toast.error(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setSubmitting(false);
+    }
   };
 
   if (!hydrated) {
@@ -194,7 +251,7 @@ export default function CheckoutPage() {
 
   return (
     <>
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
 
       <div className="relative min-h-screen pb-24 bg-cream/30">
         <div className="absolute top-0 left-0 w-full h-[50vh] bg-gradient-to-b from-cream to-transparent -z-10" />
@@ -406,55 +463,15 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      {timerOpen && (
+      {confirming && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" onClick={() => setTimerOpen(false)} />
-          <div className="relative bg-white rounded-3xl shadow-2xl p-8 sm:p-10 w-full max-w-md text-center border border-ink-50 animate-in fade-in zoom-in duration-300">
-            <button
-              onClick={() => setTimerOpen(false)}
-              className="absolute right-5 top-5 p-2 rounded-full hover:bg-cream text-ink-300 hover:text-ink transition-colors"
-            >
-              <X className="h-5 w-5" />
-            </button>
-
-            <div className="mx-auto h-20 w-20 bg-cream rounded-full mb-6 flex items-center justify-center shadow-inner border border-ink-50">
-              <Clock className="h-10 w-10 text-terracotta animate-pulse" />
-            </div>
-
-            <h2 className="text-3xl font-bold font-sans text-ink mb-3">Almost there!</h2>
-            <p className="text-ink-400 leading-relaxed mb-8">
-              We are finalizing our payment gateway integrations. Online ordering will open in:
+          <div className="absolute inset-0 bg-ink/50 backdrop-blur-sm" />
+          <div className="relative bg-white rounded-3xl shadow-2xl p-10 w-full max-w-sm text-center border border-ink-50">
+            <div className="mx-auto h-16 w-16 mb-6 rounded-full border-4 border-cream border-t-terracotta animate-spin" />
+            <h2 className="text-2xl font-bold font-sans text-ink mb-2">Confirming your order</h2>
+            <p className="text-ink-400 leading-relaxed">
+              Payment received — please wait while we confirm it. Don&apos;t close this window.
             </p>
-
-            <div className="flex items-center justify-center gap-3 md:gap-4 mb-2">
-              <div className="flex flex-col items-center">
-                <div className="w-16 h-16 md:w-20 md:h-20 bg-ink text-white rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-black font-sans shadow-lg">
-                  {String(timeLeft.days).padStart(2, "0")}
-                </div>
-                <span className="text-xs uppercase tracking-widest font-bold text-ink-300 mt-3">Days</span>
-              </div>
-              <div className="text-xl md:text-3xl font-bold text-ink-200 mb-6">:</div>
-              <div className="flex flex-col items-center">
-                <div className="w-16 h-16 md:w-20 md:h-20 bg-ink text-white rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-black font-sans shadow-lg">
-                  {String(timeLeft.hours).padStart(2, "0")}
-                </div>
-                <span className="text-xs uppercase tracking-widest font-bold text-ink-300 mt-3">Hours</span>
-              </div>
-              <div className="text-xl md:text-3xl font-bold text-ink-200 mb-6">:</div>
-              <div className="flex flex-col items-center">
-                <div className="w-16 h-16 md:w-20 md:h-20 bg-ink text-white rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-black font-sans shadow-lg">
-                  {String(timeLeft.minutes).padStart(2, "0")}
-                </div>
-                <span className="text-xs uppercase tracking-widest font-bold text-ink-300 mt-3">Mins</span>
-              </div>
-              <div className="text-xl md:text-3xl font-bold text-ink-200 mb-6">:</div>
-              <div className="flex flex-col items-center">
-                <div className="w-16 h-16 md:w-20 md:h-20 bg-ink text-white rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-black font-sans shadow-lg">
-                  {String(timeLeft.seconds).padStart(2, "0")}
-                </div>
-                <span className="text-xs uppercase tracking-widest font-bold text-ink-300 mt-3">Secs</span>
-              </div>
-            </div>
           </div>
         </div>
       )}
