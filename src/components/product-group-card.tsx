@@ -1,9 +1,10 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ArrowRight, Award } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 import type { ProductGroup } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { WishlistButton } from '@/components/wishlist-button';
@@ -17,6 +18,7 @@ const FALLBACK_IMAGE = '/products/_fallback.svg';
  * lives. No modal — the detail page is the "big screen" experience.
  */
 export function ProductGroupCard({ group }: { group: ProductGroup }) {
+  const t = useTranslations('common');
   const [imgSrc, setImgSrc] = useState(group.image || FALLBACK_IMAGE);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -31,7 +33,7 @@ export function ProductGroupCard({ group }: { group: ProductGroup }) {
   return (
     <Link
       href={`/products/${group.slug}`}
-      aria-label={`View ${group.baseName}`}
+      aria-label={t('viewProduct', { name: group.baseName })}
       className="group flex flex-col h-full rounded-sm bg-white border border-ink-50 shadow-sm hover:shadow-2xl hover:shadow-ink/5 transition-all duration-500 overflow-hidden hover:-translate-y-1"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -61,7 +63,7 @@ export function ProductGroupCard({ group }: { group: ProductGroup }) {
             {group.bestseller && (
               <Badge className="flex items-center gap-1 border-none bg-gradient-to-r from-mustard to-terracotta px-2.5 font-bold text-white shadow-sm backdrop-blur">
                 <Award className="h-3 w-3" />
-                Bestseller
+                {t('bestseller')}
               </Badge>
             )}
             {hasDiscount && anyInStock && (
@@ -69,7 +71,7 @@ export function ProductGroupCard({ group }: { group: ProductGroup }) {
                 variant="warning"
                 className="border-none bg-white/90 font-bold text-mustard shadow-sm backdrop-blur"
               >
-                Offer
+                {t('offer')}
               </Badge>
             )}
           </div>
@@ -95,7 +97,7 @@ export function ProductGroupCard({ group }: { group: ProductGroup }) {
               variant="destructive"
               className="font-bold text-sm shadow-xl px-4 py-1.5 rounded-full border border-white/20"
             >
-              Sold Out
+              {t('soldOut')}
             </Badge>
           </div>
         )}
@@ -103,7 +105,7 @@ export function ProductGroupCard({ group }: { group: ProductGroup }) {
         {/* Pack count indicator */}
         {group.variants.length > 1 && (
           <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-1 text-[10px] font-bold text-ink/70 shadow-sm border border-ink/5">
-            {group.variants.length} sizes
+            {t('sizes', { count: group.variants.length })}
           </div>
         )}
       </div>
@@ -129,7 +131,7 @@ export function ProductGroupCard({ group }: { group: ProductGroup }) {
             )}
             {group.variants.length > 1 && (
               <span className="text-[11px] text-ink/40 mt-1 font-medium">
-                {group.variants.length} pack sizes
+                {t('packSizes', { count: group.variants.length })}
               </span>
             )}
           </div>

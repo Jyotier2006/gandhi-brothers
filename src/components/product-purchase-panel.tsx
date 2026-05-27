@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Minus, Plus, ShoppingCart, Zap, Check } from "lucide-react";
-import { useCartStore } from "@/lib/store/cart-store";
+import { Link } from "@/i18n/navigation";
+import { useCartGuard } from "@/lib/use-cart-guard";
 import { calculateDiscount, effectivePrice, formatINR, cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { WishlistButton } from "@/components/wishlist-button";
-import { toast } from "sonner";
 import type { Product } from "@/lib/types";
 
 interface ProductPurchasePanelProps {
@@ -23,8 +22,9 @@ function packLabel(v: Product): string {
 }
 
 export function ProductPurchasePanel({ variants, currentSlug }: ProductPurchasePanelProps) {
-  const router = useRouter();
-  const addItem = useCartStore((s) => s.addItem);
+  const t = useTranslations("product");
+  const tc = useTranslations("common");
+  const guardAddToCart = useCartGuard();
   const [qty, setQty] = useState(1);
 
   const current = variants.find((v) => v.slug === currentSlug) ?? variants[0];
@@ -42,9 +42,8 @@ export function ProductPurchasePanel({ variants, currentSlug }: ProductPurchaseP
     category: current.category,
   };
 
-  function addToCart() {
-    if (!inStock) return;
-    addItem({
+  function cartItem() {
+    return {
       productId: current.id,
       slug: current.slug,
       name: current.name,
@@ -52,14 +51,18 @@ export function ProductPurchasePanel({ variants, currentSlug }: ProductPurchaseP
       image: current.image,
       quantity: qty,
       stock: current.stock,
-    });
-    toast.success(`${current.name} (×${qty}) added to cart`);
+    };
+  }
+
+  // Guard requires Google sign-in first; on success the action replays automatically.
+  function addToCart() {
+    if (!inStock) return;
+    guardAddToCart(cartItem());
   }
 
   function buyNow() {
     if (!inStock) return;
-    addToCart();
-    router.push("/checkout");
+    guardAddToCart(cartItem(), { buyNow: true });
   }
 
   return (
@@ -74,11 +77,11 @@ export function ProductPurchasePanel({ variants, currentSlug }: ProductPurchaseP
             <span className="text-xl font-bold text-ink-300 line-through">
               {formatINR(current.price)}
             </span>
-            <span className="text-sm font-bold text-mustard">{discount}% off</span>
+            <span className="text-sm font-bold text-mustard">{tc("percentOff", { pct: discount })}</span>
           </>
         )}
         <span className="text-sm font-semibold text-ink/40 ml-1 uppercase tracking-wide">
-          incl. of all taxes
+          {t("inclTaxes")}
         </span>
       </div>
 
@@ -86,15 +89,15 @@ export function ProductPurchasePanel({ variants, currentSlug }: ProductPurchaseP
       <div>
         {!inStock ? (
           <Badge variant="destructive" className="px-4 py-1.5 rounded-xl font-bold border border-red-900/10 shadow-sm">
-            Out of stock
+            {tc("outOfStock")}
           </Badge>
         ) : lowStock ? (
           <Badge variant="warning" className="px-4 py-1.5 rounded-xl font-bold bg-mustard/10 text-mustard-700 border border-mustard/30">
-            Only {current.stock} left
+            {tc("onlyLeft", { count: current.stock })}
           </Badge>
         ) : (
           <Badge variant="success" className="px-4 py-1.5 rounded-xl font-bold bg-green-50 text-green-700 border border-green-200">
-            In stock
+            {tc("inStock")}
           </Badge>
         )}
       </div>
@@ -103,7 +106,7 @@ export function ProductPurchasePanel({ variants, currentSlug }: ProductPurchaseP
       {variants.length > 1 && (
         <div className="space-y-3">
           <span className="text-sm font-semibold text-ink uppercase tracking-wider">
-            Pack size
+            {t("packSize")}
           </span>
           <div className="flex flex-wrap gap-3">
             {variants.map((v) => {
@@ -132,7 +135,7 @@ export function ProductPurchasePanel({ variants, currentSlug }: ProductPurchaseP
                   <span className="font-bold text-sm text-ink">{packLabel(v)}</span>
                   <span className="text-xs text-ink/60 mt-0.5">
                     {formatINR(vPrice)}
-                    {vOut && " · sold out"}
+                    {vOut && ` · ${tc("soldOut")}`}
                   </span>
                 </Link>
               );
@@ -145,14 +148,14 @@ export function ProductPurchasePanel({ variants, currentSlug }: ProductPurchaseP
       {inStock ? (
         <div className="space-y-5">
           <div className="flex items-center gap-4">
-            <span className="text-sm font-semibold text-ink uppercase tracking-wider">Quantity</span>
+            <span className="text-sm font-semibold text-ink uppercase tracking-wider">{t("quantity")}</span>
             <div className="flex items-center rounded-lg border border-ink-100 bg-white shadow-sm overflow-hidden h-10">
               <button
                 type="button"
                 className="flex h-full w-10 items-center justify-center text-ink hover:bg-cream disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
                 onClick={() => setQty((q) => Math.max(1, q - 1))}
                 disabled={qty <= 1}
-                aria-label="Decrease quantity"
+                aria-label={t("decreaseQty")}
               >
                 <Minus className="h-4 w-4" />
               </button>
@@ -164,7 +167,7 @@ export function ProductPurchasePanel({ variants, currentSlug }: ProductPurchaseP
                 className="flex h-full w-10 items-center justify-center text-ink hover:bg-cream disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
                 onClick={() => setQty((q) => Math.min(current.stock, q + 1))}
                 disabled={qty >= current.stock}
-                aria-label="Increase quantity"
+                aria-label={t("increaseQty")}
               >
                 <Plus className="h-4 w-4" />
               </button>
@@ -174,11 +177,11 @@ export function ProductPurchasePanel({ variants, currentSlug }: ProductPurchaseP
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Button variant="outline" size="lg" onClick={addToCart} className="w-full text-base">
               <ShoppingCart className="h-4 w-4" />
-              Add to cart
+              {tc("addToCart")}
             </Button>
             <Button variant="default" size="lg" onClick={buyNow} className="w-full text-base">
               <Zap className="h-4 w-4" />
-              Buy now
+              {tc("buyNow")}
             </Button>
           </div>
 
@@ -187,14 +190,14 @@ export function ProductPurchasePanel({ variants, currentSlug }: ProductPurchaseP
       ) : (
         <div className="space-y-4">
           <Button disabled size="lg" className="w-full">
-            Sold out
+            {tc("soldOut")}
           </Button>
           <WishlistButton item={wishlistItem} display="full" className="w-full sm:w-auto" />
           {variants.length > 1 && (
             <p className="text-sm text-ink/50">
-              Try a different pack size above, or{" "}
+              {t("soldOutTryOther")}{" "}
               <Link href="/inquiry" className="text-terracotta font-semibold hover:underline">
-                ask us about availability
+                {t("askAvailability")}
               </Link>
               .
             </p>

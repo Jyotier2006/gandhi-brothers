@@ -9,6 +9,7 @@ import { ShoppingBag, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useCartStore } from "@/lib/store/cart-store";
 import { formatINR } from "@/lib/utils";
+import { websiteFee } from "@/lib/pricing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,7 +48,7 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState<CheckoutAddress>(INITIAL_ADDRESS);
   const [errors, setErrors] = useState<Partial<Record<keyof CheckoutAddress, string>>>({});
-  const [shipping, setShipping] = useState<{ rate: number; estimatedDays: number } | null>(null);
+  const [shipping, setShipping] = useState<{ rate: number; estimatedDays: number; packaging: number } | null>(null);
 
   const items = useCartStore((s) => s.items);
   const getSubtotal = useCartStore((s) => s.getSubtotal);
@@ -247,7 +248,9 @@ export default function CheckoutPage() {
 
   const subtotal = getSubtotal();
   const shippingCost = shipping?.rate ?? 0;
-  const total = subtotal + shippingCost;
+  // Packaging (₹30/kg, server-computed) + 5% website fee, shown as one line.
+  const handling = shipping ? (shipping.packaging ?? 0) + websiteFee(subtotal) : 0;
+  const total = subtotal + shippingCost + handling;
 
   return (
     <>
@@ -418,6 +421,22 @@ export default function CheckoutPage() {
                       <span>Shipping</span>
                       {shipping !== null ? (
                         <span className="font-bold text-ink">{formatINR(shippingCost)}</span>
+                      ) : (
+                        <span className="text-ink/40 text-sm italic">Enter pincode</span>
+                      )}
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="flex items-center gap-1.5">
+                        Handling &amp; packaging
+                        <span
+                          title="Packaging (₹30/kg) plus a 5% website charge"
+                          className="cursor-help text-ink/30"
+                        >
+                          ⓘ
+                        </span>
+                      </span>
+                      {shipping !== null ? (
+                        <span className="font-bold text-ink">{formatINR(handling)}</span>
                       ) : (
                         <span className="text-ink/40 text-sm italic">Enter pincode</span>
                       )}

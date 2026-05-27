@@ -1,22 +1,23 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { ShoppingBag } from 'lucide-react';
+import { Link } from '@/i18n/navigation';
 import type { Product } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useCartStore } from '@/lib/store/cart-store';
+import { useCartGuard } from '@/lib/use-cart-guard';
 import { WishlistButton } from '@/components/wishlist-button';
-import { toast } from 'sonner';
 import { calculateDiscount, effectivePrice, formatINR } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 const FALLBACK_IMAGE = '/products/_fallback.svg';
 
 export function ProductCard({ product }: { product: Product }) {
-  const addItem = useCartStore((s) => s.addItem);
+  const t = useTranslations('common');
+  const guardAddToCart = useCartGuard();
   const [imgSrc, setImgSrc] = useState(product.image || FALLBACK_IMAGE);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -24,10 +25,12 @@ export function ProductCard({ product }: { product: Product }) {
   const finalPrice = effectivePrice(product.price, product.discount_price);
   const inStock = product.stock > 0;
 
+  // Guard requires Google sign-in first; on success the add replays automatically.
   function handleAdd(e: React.MouseEvent) {
     e.preventDefault();
+    e.stopPropagation();
     if (!inStock) return;
-    addItem({
+    guardAddToCart({
       productId: product.id,
       slug: product.slug,
       name: product.name,
@@ -36,7 +39,6 @@ export function ProductCard({ product }: { product: Product }) {
       quantity: 1,
       stock: product.stock,
     });
-    toast.success(`${product.name} added to cart`);
   }
 
   return (
@@ -68,7 +70,7 @@ export function ProductCard({ product }: { product: Product }) {
 
         {discountPct > 0 && inStock && (
           <Badge variant="warning" className="absolute top-4 left-4 bg-white/90 text-mustard border-none shadow-sm font-bold backdrop-blur">
-            {discountPct}% OFF
+            {t('percentOff', { pct: discountPct })}
           </Badge>
         )}
 
@@ -88,7 +90,7 @@ export function ProductCard({ product }: { product: Product }) {
         {!inStock && (
           <div className="absolute inset-0 bg-ink/60 backdrop-blur-[2px] flex items-center justify-center z-10 transition-colors">
             <Badge variant="destructive" className="font-bold text-sm shadow-xl shadow-red-900/20 px-4 py-1.5 rounded-full border border-white/20">
-              Sold Out
+              {t('soldOut')}
             </Badge>
           </div>
         )}
@@ -122,7 +124,7 @@ export function ProductCard({ product }: { product: Product }) {
                 ? "bg-ink hover:bg-terracotta shadow-ink/20 hover:shadow-terracotta/30 text-white" 
                 : "bg-ink-100 text-ink-300 cursor-not-allowed shadow-none"
             )}
-            aria-label={inStock ? "Add to cart" : "Sold out"}
+            aria-label={inStock ? t('addToCart') : t('soldOut')}
           >
             <ShoppingBag className="h-5 w-5" />
           </Button>

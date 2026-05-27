@@ -98,6 +98,8 @@ export type OrderEmailPayload = {
   items: Array<{ name: string; quantity: number; price: number }>;
   subtotal: number;
   delivery: number;
+  /** Combined packaging + 5% website charge. Omitted/0 → row hidden. */
+  handling?: number;
   total: number;
   razorpayOrderId: string;
   razorpayPaymentId: string;
@@ -237,6 +239,10 @@ ${trackingRow}
   <td style="padding:6px 0;color:#8a7060;font-size:13px;">Delivery</td>
   <td style="padding:6px 0;color:#4a3728;font-size:13px;text-align:right;">${order.delivery === 0 ? "FREE" : `₹${order.delivery.toLocaleString("en-IN")}`}</td>
 </tr>
+${order.handling && order.handling > 0 ? `<tr>
+  <td style="padding:6px 0;color:#8a7060;font-size:13px;">Handling &amp; packaging</td>
+  <td style="padding:6px 0;color:#4a3728;font-size:13px;text-align:right;">₹${order.handling.toLocaleString("en-IN")}</td>
+</tr>` : ""}
 <tr>
   <td style="padding:10px 0 0;font-size:16px;font-weight:700;color:#6B4A35;border-top:2px solid #D9A536;">Total Paid</td>
   <td style="padding:10px 0 0;font-size:16px;font-weight:700;color:#D9A536;text-align:right;border-top:2px solid #D9A536;">₹${order.total.toLocaleString("en-IN")}</td>

@@ -2,11 +2,14 @@
  * Product reviews — Google Sheets backed (matches the catalogue/orders architecture).
  *
  * Sheet tab "Reviews" with header row 1:
- *   A: Timestamp | B: Product Key | C: Name | D: Rating | E: Title | F: Body | G: Status
+ *   A: Timestamp | B: Product Key | C: Name | D: Rating | E: Title | F: Body
+ *   G: Status | H: Verified | I: Email
  *
- * Only rows with Status === "Approved" are ever shown publicly. Submissions are
- * appended with Status "Pending" and must be approved in the sheet by hand —
- * this keeps spam and fake ratings out of the live AggregateRating schema.
+ * Only rows with Status === "Approved" are ever shown publicly. Reviews now
+ * come exclusively from verified buyers (checked server-side against their
+ * orders), so they are written Verified=TRUE and auto-approved. The Email
+ * column is used only to prevent a buyer reviewing the same product twice —
+ * it is never returned to the client.
  *
  * Everything degrades gracefully to empty when the tab or credentials are absent,
  * so the storefront works the same whether or not reviews have been set up yet.
@@ -22,6 +25,7 @@ export interface Review {
   title: string;
   body: string;
   date: string; // ISO
+  verified: boolean; // written by a confirmed buyer
 }
 
 export interface ReviewSummary {
@@ -58,7 +62,7 @@ export async function getReviewsForProduct(productKey: string): Promise<Review[]
   try {
     const res = await client.sheets.spreadsheets.values.get({
       spreadsheetId: client.spreadsheetId,
-      range: `${SHEET_NAME}!A2:G`,
+      range: `${SHEET_NAME}!A2:I`,
     });
     const rows = res.data.values ?? [];
     return rows
@@ -70,6 +74,7 @@ export async function getReviewsForProduct(productKey: string): Promise<Review[]
         rating: Math.max(1, Math.min(5, Math.round(Number(r[3]) || 0))),
         title: String(r[4] ?? ""),
         body: String(r[5] ?? ""),
+        verified: String(r[7] ?? "").trim().toUpperCase() === "TRUE",
       }))
       .sort((a, b) => (a.date < b.date ? 1 : -1));
   } catch (err) {
@@ -84,13 +89,19 @@ export function summarise(reviews: Review[]): ReviewSummary {
   return { count: reviews.length, average: Math.round((sum / reviews.length) * 10) / 10 };
 }
 
-/** Append a pending review. Returns false if storage is unavailable. */
+/**
+ * Append a review. Verified-buyer reviews are auto-approved (they appear
+ * immediately); anything else is left "Pending" for manual approval.
+ * Returns false if storage is unavailable.
+ */
 export async function addReview(input: {
   productKey: string;
   name: string;
   rating: number;
   title: string;
   body: string;
+  verified?: boolean;
+  email?: string;
 }): Promise<boolean> {
   const client = getSheets();
   if (!client) return false;
@@ -101,13 +112,38 @@ export async function addReview(input: {
     String(Math.max(1, Math.min(5, Math.round(input.rating)))),
     input.title,
     input.body,
-    "Pending",
+    input.verified ? "Approved" : "Pending",
+    input.verified ? "TRUE" : "FALSE",
+    input.email ?? "",
   ];
   await client.sheets.spreadsheets.values.append({
     spreadsheetId: client.spreadsheetId,
-    range: `${SHEET_NAME}!A:G`,
+    range: `${SHEET_NAME}!A:I`,
     valueInputOption: "USER_ENTERED",
     requestBody: { values: [row] },
   });
   return true;
+}
+
+/** Has this email already reviewed this product? Used to block duplicates. */
+export async function hasUserReviewed(productKey: string, email: string): Promise<boolean> {
+  if (!email) return false;
+  const client = getSheets();
+  if (!client) return false;
+  try {
+    const res = await client.sheets.spreadsheets.values.get({
+      spreadsheetId: client.spreadsheetId,
+      range: `${SHEET_NAME}!A2:I`,
+    });
+    const rows = res.data.values ?? [];
+    const target = email.trim().toLowerCase();
+    return rows.some(
+      (r) =>
+        String(r[1]).trim() === productKey &&
+        String(r[8] ?? "").trim().toLowerCase() === target
+    );
+  } catch (err) {
+    console.warn("[reviews] hasUserReviewed failed (non-fatal):", err);
+    return false;
+  }
 }

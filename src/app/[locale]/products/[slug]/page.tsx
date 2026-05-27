@@ -5,6 +5,9 @@ import { ShieldCheck, Sparkles } from "lucide-react";
 import { getProductBySlug, getProductGroupBySlug, getRelatedProducts } from "@/lib/products";
 import { getProductDescription } from "@/lib/product-descriptions";
 import { getReviewsForProduct, summarise, toReviewKey } from "@/lib/reviews";
+import { hasPurchasedProduct } from "@/lib/purchases";
+import { auth } from "@/auth";
+import { getTranslations } from "next-intl/server";
 import { calculateDiscount, effectivePrice, formatINR } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { ProductCard } from "@/components/product-card";
@@ -77,6 +80,15 @@ export default async function ProductDetailPage({
   const reviewKey = toReviewKey(product.slug);
   const reviews = await getReviewsForProduct(reviewKey);
   const reviewSummary = summarise(reviews);
+
+  // Only verified buyers (signed in + have purchased this product) may review.
+  const session = await auth();
+  const userEmail = session?.user?.email ?? null;
+  const canReview = userEmail ? await hasPurchasedProduct(userEmail, reviewKey) : false;
+
+  const tp = await getTranslations("product");
+  const tNav = await getTranslations("nav");
+  const tc = await getTranslations("common");
 
   // ── Structured data ────────────────────────────────────────────────────
   const productJsonLd: Record<string, unknown> = {
@@ -160,8 +172,8 @@ export default async function ProductDetailPage({
         <Breadcrumbs
           className="mb-8"
           items={[
-            { label: "Home", href: "/" },
-            { label: "Shop", href: "/products" },
+            { label: tNav("home"), href: "/" },
+            { label: tNav("shop"), href: "/products" },
             {
               label: product.category,
               href: `/products?category=${encodeURIComponent(product.category)}`,
@@ -192,7 +204,7 @@ export default async function ProductDetailPage({
 
               {discount > 0 && (
                 <Badge variant="warning" className="absolute left-6 top-6 shadow-xl bg-white/90 text-mustard border-white backdrop-blur font-bold text-sm px-4 py-1.5 rounded-full">
-                  {discount}% OFF
+                  {tc("percentOff", { pct: discount })}
                 </Badge>
               )}
             </div>
@@ -215,7 +227,7 @@ export default async function ProductDetailPage({
                   <StarRating value={reviewSummary.average} size={16} />
                   <span className="font-semibold">{reviewSummary.average.toFixed(1)}</span>
                   <span className="text-ink/40">
-                    ({reviewSummary.count} {reviewSummary.count === 1 ? "review" : "reviews"})
+                    {tp("reviewsCount", { count: reviewSummary.count })}
                   </span>
                 </a>
               )}
@@ -244,13 +256,13 @@ export default async function ProductDetailPage({
               </div>
               <div>
                 <span className="font-bold font-sans text-ink block mb-1">
-                  FDCA Licensed Manufacturing
+                  {tp("fdcaTitle")}
                 </span>
                 <span className="font-serif text-ink/70 block leading-snug">
-                  Gandhi Brothers, Junagadh — Licence GA/2079, Form 25D.
+                  {tp("fdcaLicence")}
                 </span>
                 <span className="font-serif text-mustard-600/[0.85] font-semibold text-[13px] block mt-2">
-                  * Ayurvedic medicine. Use under proper medical supervision.
+                  {tp("fdcaDisclaimer")}
                 </span>
               </div>
             </div>
@@ -263,6 +275,9 @@ export default async function ProductDetailPage({
           productName={group.baseName}
           reviews={reviews}
           summary={reviewSummary}
+          signedIn={!!userEmail}
+          canReview={canReview}
+          userName={session?.user?.name ?? ""}
         />
 
         {/* ── Related Items ───────────────────────────────────────────────────── */}
@@ -270,7 +285,7 @@ export default async function ProductDetailPage({
           <section className="mt-32 pt-16 border-t border-ink-100/50">
             <Reveal>
               <h2 className="text-3xl font-bold font-sans text-ink mb-6 text-center lg:text-left">
-                You might also like
+                {tp("youMightLike")}
               </h2>
               <div className="h-1 w-16 bg-mustard rounded-full mb-10 mx-auto lg:mx-0" />
             </Reveal>

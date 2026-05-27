@@ -1,3 +1,8 @@
+const createNextIntlPlugin = require("next-intl/plugin");
+
+// Point the plugin at our request config (default location is ./i18n/request.ts).
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Local /public images only — no external CDN dependency.
@@ -7,9 +12,9 @@ const nextConfig = {
   },
   experimental: {
     serverActions: {
-      bodySizeLimit: '2mb',
+      bodySizeLimit: "2mb",
     },
   },
 };
 
-module.exports = nextConfig;
+module.exports = withNextIntl(nextConfig);

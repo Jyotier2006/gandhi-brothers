@@ -95,7 +95,9 @@ export type OrderRecord = {
   subtotal: number;
   /** Delivery charge in INR (0 for free delivery, fixed otherwise). */
   delivery: number;
-  /** subtotal + delivery */
+  /** Combined "Handling & packaging": ₹30/kg packaging + 5% website fee. */
+  handling?: number;
+  /** subtotal + delivery + handling */
   total: number;
   /** Razorpay order id returned from /api/razorpay/create-order. */
   razorpay_order_id: string;

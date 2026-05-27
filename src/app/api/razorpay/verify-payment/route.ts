@@ -4,6 +4,8 @@ import { getProductsByIds } from '@/lib/products';
 import { applyStockChanges } from '@/lib/stock';
 import { saveOrderToSheet, getOrder, updateOrderInSheet } from '@/lib/orders';
 import { effectivePrice } from '@/lib/utils';
+import { totalCartWeightKg } from '@/lib/shiprocket';
+import { packagingCost, websiteFee } from '@/lib/pricing';
 import { sendOrderEmail } from '@/lib/email';
 import type { OrderEmailPayload } from '@/lib/email';
 
@@ -72,6 +74,8 @@ export async function POST(req: Request) {
 
       // Captured separately for the stock-movement audit log (needs pack size).
       const stockChanges: { skuCode: string; productName: string; packSize: string; quantity: number }[] = [];
+      // Captured for packaging (weight-based) recomputation.
+      const cartWeights: Array<{ weightGrams: number; quantity: number }> = [];
 
       for (const line of items) {
         const product = products.find((p) => p.id === line.productId);
@@ -93,9 +97,17 @@ export async function POST(req: Request) {
           packSize: (product as any).pack_size ?? '',
           quantity: line.quantity,
         });
+        cartWeights.push({
+          weightGrams: (product as any).weight_grams ?? 200,
+          quantity: line.quantity,
+        });
       }
 
-      const total = Math.round(subtotal + deliveryCharge);
+      // Recompute the extra charges server-side (mirrors create-order) so the
+      // saved total matches exactly what Razorpay captured.
+      const weightKg = totalCartWeightKg(cartWeights);
+      const handling = packagingCost(weightKg) + websiteFee(subtotal);
+      const total = Math.round(subtotal + deliveryCharge + handling);
       const orderId = `GB${Date.now()}${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
 
       try {
@@ -111,6 +123,7 @@ export async function POST(req: Request) {
         items: orderItems,
         subtotal,
         delivery: deliveryCharge,
+        handling,
         total,
         razorpay_order_id,
         razorpay_payment_id,
@@ -162,6 +175,7 @@ export async function POST(req: Request) {
         })) : [],
         subtotal: orderRecord!.subtotal,
         delivery: orderRecord!.delivery,
+        handling: orderRecord!.handling,
         total: orderRecord!.total,
         razorpayOrderId: razorpay_order_id,
         razorpayPaymentId: razorpay_payment_id,

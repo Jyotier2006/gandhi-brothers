@@ -73,11 +73,12 @@ export async function saveOrderToSheet(order: OrderRecord): Promise<void> {
     order.shippingError ?? "",        // W: Shipping Error
     order.emailError ?? "",           // X: Email Error
     order.fulfillmentDone ? "TRUE" : "FALSE", // Y: Fulfillment Done
+    order.handling ?? "",             // Z: Handling & packaging
   ];
 
   await sheets.spreadsheets.values.append({
     spreadsheetId,
-    range: "Orders!A:Y",
+    range: "Orders!A:Z",
     valueInputOption: "USER_ENTERED",
     requestBody: { values: [rowData] },
   });
@@ -134,6 +135,57 @@ export async function getOrder(razorpayOrderId: string): Promise<OrderRecord | n
   return null;
 }
 
+/** Reconstruct a full OrderRecord from a sheet row (columns A..Y), parsing the
+ *  free-text items cell (J) back into line items. */
+function rowToOrderRecord(row: any[]): OrderRecord {
+  const items = String(row[9] ?? "")
+    .split(" | ")
+    .map((itemStr: string) => {
+      const [namePart, rest] = itemStr.split(" ×");
+      const qtyPart = rest ? rest.split(" @")[0] : "1";
+      return {
+        name: (namePart ?? "").trim(),
+        quantity: parseInt(qtyPart, 10) || 1,
+        price: 0,
+        slug: "",
+        productId: "",
+        image: "",
+      };
+    })
+    .filter((item: any) => item.name);
+
+  return {
+    id: row[0],
+    createdAt: row[1],
+    customer: {
+      name: row[2],
+      email: row[3],
+      phone: row[4],
+      address: row[5],
+      city: row[6],
+      state: row[7],
+      pincode: row[8],
+    },
+    items,
+    subtotal: parseFloat(row[10] || "0"),
+    delivery: parseFloat(row[11] || "0"),
+    total: parseFloat(row[12] || "0"),
+    razorpay_order_id: row[13],
+    razorpay_payment_id: row[14],
+    emailSent: row[15] === "TRUE",
+    paidAt: row[16],
+    shiprocketOrderId: row[17],
+    shipmentId: row[18],
+    awbCode: row[19],
+    courierName: row[20],
+    labelUrl: row[21],
+    shippingError: row[22],
+    emailError: row[23],
+    fulfillmentDone: row[24] === "TRUE",
+    handling: row[25] !== undefined && row[25] !== "" ? Number(row[25]) || 0 : undefined,
+  };
+}
+
 /**
  * Fetch an order by internal GB Order ID
  */
@@ -148,47 +200,40 @@ export async function getOrderById(orderId: string): Promise<OrderRecord | null>
 
   const rows = res.data.values ?? [];
   for (let i = 1; i < rows.length; i++) {
-    const row = rows[i];
-    if (row[0] === orderId) {
-      // Parse items if available
-      const items = (row[9] ?? "").split(" | ").map((itemStr: string) => {
-        const [namePart, rest] = itemStr.split(" ×");
-        const qtyPart = rest ? rest.split(" @")[0] : "1";
-        return { name: namePart, quantity: parseInt(qtyPart, 10) || 1, price: 0, slug: "", productId: "", image: "" };
-      }).filter((item: any) => item.name);
-
-      return {
-        id: row[0],
-        createdAt: row[1],
-        customer: {
-          name: row[2],
-          email: row[3],
-          phone: row[4],
-          address: row[5],
-          city: row[6],
-          state: row[7],
-          pincode: row[8],
-        },
-        items,
-        subtotal: parseFloat(row[10] || "0"),
-        delivery: parseFloat(row[11] || "0"),
-        total: parseFloat(row[12] || "0"),
-        razorpay_order_id: row[13],
-        razorpay_payment_id: row[14],
-        emailSent: row[15] === "TRUE",
-        paidAt: row[16],
-        shiprocketOrderId: row[17],
-        shipmentId: row[18],
-        awbCode: row[19],
-        courierName: row[20],
-        labelUrl: row[21],
-        shippingError: row[22],
-        emailError: row[23],
-        fulfillmentDone: row[24] === "TRUE",
-      };
-    }
+    if (rows[i][0] === orderId) return rowToOrderRecord(rows[i]);
   }
   return null;
+}
+
+/**
+ * All orders placed by a given customer email, newest first. Powers the
+ * "My Orders" account page and the verified-buyer review check. Returns an
+ * empty array (never throws) when Sheets is unavailable.
+ */
+export async function getOrdersByEmail(email: string): Promise<OrderRecord[]> {
+  if (!email) return [];
+  try {
+    const { auth, spreadsheetId } = buildAuth();
+    const sheets = google.sheets({ version: "v4", auth });
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: "Orders!A:Y",
+    });
+    const rows = res.data.values ?? [];
+    const target = email.trim().toLowerCase();
+    const out: OrderRecord[] = [];
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      if (row[0] && String(row[3] ?? "").trim().toLowerCase() === target) {
+        out.push(rowToOrderRecord(row));
+      }
+    }
+    out.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+    return out;
+  } catch (err) {
+    console.warn("[orders] getOrdersByEmail failed (non-fatal):", err);
+    return [];
+  }
 }
 
 /**

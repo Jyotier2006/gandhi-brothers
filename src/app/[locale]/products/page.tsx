@@ -10,6 +10,7 @@ import { ProductFilters } from '@/components/product-filters';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Reveal } from '@/components/reveal';
 import { SITE_URL } from '@/lib/site-url';
+import { getTranslations } from 'next-intl/server';
 
 export const revalidate = 60;
 
@@ -101,9 +102,17 @@ export default async function ProductsPage({
   const category = params.category && CATEGORY_SEO[params.category] ? params.category : undefined;
   const copy = category ? CATEGORY_SEO[category] : DEFAULT_SEO;
 
+  const tShop = await getTranslations('shop');
+  const tNav = await getTranslations('nav');
+  // Translated, visible headings (CATEGORY_SEO stays English for metadata/JSON-LD).
+  const h1 =
+    category === 'Churna' ? tShop('h1Churna') : category === 'Taila' ? tShop('h1Taila') : tShop('h1Default');
+  const intro =
+    category === 'Churna' ? tShop('introChurna') : category === 'Taila' ? tShop('introTaila') : tShop('introDefault');
+
   const breadcrumbItems = category
-    ? [{ label: 'Home', href: '/' }, { label: 'Shop', href: '/products' }, { label: copy.h1 }]
-    : [{ label: 'Home', href: '/' }, { label: 'Shop' }];
+    ? [{ label: tNav('home'), href: '/' }, { label: tNav('shop'), href: '/products' }, { label: h1 }]
+    : [{ label: tNav('home'), href: '/' }, { label: tNav('shop') }];
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
@@ -139,9 +148,9 @@ export default async function ProductsPage({
       <Breadcrumbs className="mb-6 px-2 sm:px-0" items={breadcrumbItems} />
 
       <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-semibold">{copy.h1}</h1>
+        <h1 className="text-3xl md:text-4xl font-semibold">{h1}</h1>
         <div className="terracotta-rule mx-0" />
-        <p className="text-ink-400 max-w-2xl leading-relaxed">{copy.intro}</p>
+        <p className="text-ink-400 max-w-2xl leading-relaxed">{intro}</p>
       </div>
 
       <ProductFilters />
@@ -154,13 +163,16 @@ export default async function ProductsPage({
 }
 
 async function ProductGrid({ params }: { params: SearchParams }) {
-  const groups = await searchGroupedProducts(params);
+  const [groups, t] = await Promise.all([
+    searchGroupedProducts(params),
+    getTranslations('shop'),
+  ]);
 
   if (!groups || groups.length === 0) {
     return (
       <div className="text-center py-16">
-        <p className="text-lg font-medium">No products found</p>
-        <p className="text-sm text-ink-400 mt-1">Try adjusting your filters.</p>
+        <p className="text-lg font-medium">{t('noProducts')}</p>
+        <p className="text-sm text-ink-400 mt-1">{t('noProductsHint')}</p>
       </div>
     );
   }
@@ -185,7 +197,7 @@ async function ProductGrid({ params }: { params: SearchParams }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
       />
       <p className="text-sm text-ink-400 mb-4">
-        Showing {groups.length} {groups.length === 1 ? 'product' : 'products'}
+        {t('showing', { count: groups.length })}
       </p>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
         {groups.map((g, i) => (

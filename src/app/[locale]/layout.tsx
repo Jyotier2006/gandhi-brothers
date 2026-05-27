@@ -1,10 +1,21 @@
 import type { Metadata } from "next";
 import { Poppins, Lora } from "next/font/google";
-import "./globals.css";
+import { notFound } from "next/navigation";
+import { NextIntlClientProvider, hasLocale } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
+import "../globals.css";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/toaster";
+import { Providers } from "@/components/providers";
+import { SignInModal } from "@/components/auth/sign-in-modal";
+import { PendingCartReplay } from "@/components/auth/pending-cart-replay";
 import { SITE_URL } from "@/lib/site-url";
+import { routing } from "@/i18n/routing";
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -43,7 +54,16 @@ export const metadata: Metadata = {
   authors: [{ name: SITE_NAME }],
   creator: SITE_NAME,
   publisher: SITE_NAME,
-  alternates: { canonical: "/" },
+  alternates: {
+    canonical: "/",
+    // hreflang — tells Google about the language variants of the home page.
+    languages: {
+      en: "/",
+      hi: "/hi",
+      gu: "/gu",
+      "x-default": "/",
+    },
+  },
   robots: {
     index: true,
     follow: true,
@@ -168,13 +188,20 @@ const STORE_JSON_LD = {
   sameAs: ["https://instagram.com/gandhi_brothers9"],
 };
 
-export default function RootLayout({
+export default async function LocaleLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) notFound();
+  // Enables static rendering for this locale.
+  setRequestLocale(locale);
+
   return (
-    <html lang="en" className={`${poppins.variable} ${lora.variable}`}>
+    <html lang={locale} className={`${poppins.variable} ${lora.variable}`}>
       <head>
         {/* Without JS, scroll-reveal elements must never stay hidden. */}
         <noscript>
@@ -188,10 +215,16 @@ export default function RootLayout({
         >
           Skip to content
         </a>
-        <Navbar />
-        <main id="main-content" className="flex-1">{children}</main>
-        <Footer />
-        <Toaster position="top-right" />
+        <NextIntlClientProvider>
+        <Providers>
+          <Navbar />
+          <main id="main-content" className="flex-1">{children}</main>
+          <Footer />
+          <Toaster position="top-right" />
+          <SignInModal />
+          <PendingCartReplay />
+        </Providers>
+        </NextIntlClientProvider>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSON_LD) }}

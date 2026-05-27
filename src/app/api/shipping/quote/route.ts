@@ -11,6 +11,7 @@
 import { NextResponse } from 'next/server';
 import { getProductsByIds } from '@/lib/products';
 import { getShippingQuote, totalCartWeightKg } from '@/lib/shiprocket';
+import { packagingCost } from '@/lib/pricing';
 
 type Body = {
   pincode: string;
@@ -71,6 +72,10 @@ export async function POST(req: Request) {
       serviceable: true,
       rate: quote.rate,
       estimatedDays: quote.estimatedDays,
+      weightKg,
+      // Packaging is weight-based, so only the server can compute it; the
+      // checkout UI adds the 5% website fee (which it derives from subtotal).
+      packaging: packagingCost(weightKg),
     });
   } catch (err) {
     console.error('[shipping/quote] error:', err);

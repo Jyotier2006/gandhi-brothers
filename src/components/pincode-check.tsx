@@ -26,6 +26,8 @@ type CartItem = { productId: string; quantity: number };
 type Quote = {
   rate: number;
   estimatedDays: number;
+  /** Weight-based packaging cost (₹), computed server-side. */
+  packaging: number;
 };
 
 export function PincodeCheck({
@@ -100,7 +102,7 @@ export function PincodeCheck({
         return;
       }
 
-      const newQuote = { rate: data.rate, estimatedDays: data.estimatedDays };
+      const newQuote = { rate: data.rate, estimatedDays: data.estimatedDays, packaging: data.packaging ?? 0 };
       setQuote(newQuote);
       setStatus('ok');
       onQuoteChange(newQuote);

@@ -20,6 +20,18 @@ const STATIC_ROUTES: { path: string; priority: number; changeFrequency: Metadata
   { path: "/refund-policy", priority: 0.3, changeFrequency: "yearly" },
 ];
 
+/** hreflang alternates for a path across all locales (en at root, /hi, /gu). */
+function altLanguages(path: string) {
+  const seg = path === "/" ? "" : path;
+  return {
+    languages: {
+      en: `${BASE_URL}${seg || "/"}`,
+      hi: `${BASE_URL}/hi${seg}`,
+      gu: `${BASE_URL}/gu${seg}`,
+    },
+  };
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
@@ -28,6 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: now,
     changeFrequency: r.changeFrequency,
     priority: r.priority,
+    alternates: altLanguages(r.path),
   }));
 
   // Product pages — gracefully degrades to [] if the catalogue is unavailable.
@@ -48,6 +61,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
         // Image sitemap entry — improves Google Images discovery for product photos.
         images: p.image ? [`${BASE_URL}${p.image}`] : undefined,
+        alternates: altLanguages(`/products/${p.slug}`),
       }));
   } catch {
     productEntries = [];
@@ -59,6 +73,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(a.updated ?? a.date),
     changeFrequency: "monthly" as const,
     priority: 0.6,
+    alternates: altLanguages(`/blog/${a.slug}`),
   }));
 
   return [...staticEntries, ...productEntries, ...articleEntries];

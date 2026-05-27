@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Heart } from "lucide-react";
 import { toast } from "sonner";
 import { useWishlistStore, type WishlistItem } from "@/lib/store/wishlist-store";
@@ -14,6 +15,7 @@ interface WishlistButtonProps {
 }
 
 export function WishlistButton({ item, display = "icon", className }: WishlistButtonProps) {
+  const t = useTranslations("common");
   const [mounted, setMounted] = useState(false);
   const toggle = useWishlistStore((s) => s.toggle);
   const items = useWishlistStore((s) => s.items);
@@ -28,7 +30,9 @@ export function WishlistButton({ item, display = "icon", className }: WishlistBu
     const wasActive = active;
     toggle(item);
     toast.success(
-      wasActive ? `${item.name} removed from wishlist` : `${item.name} saved to wishlist`
+      wasActive
+        ? t("wishlistRemoved", { name: item.name })
+        : t("wishlistAdded", { name: item.name })
     );
   }
 
@@ -38,7 +42,7 @@ export function WishlistButton({ item, display = "icon", className }: WishlistBu
         type="button"
         onClick={handleToggle}
         aria-pressed={active}
-        aria-label={active ? "Remove from wishlist" : "Add to wishlist"}
+        aria-label={active ? t("removeFromWishlist") : t("addToWishlist")}
         className={cn(
           "inline-flex items-center justify-center gap-2 h-12 px-5 rounded-xl border font-semibold text-sm transition-all duration-300",
           active
@@ -48,7 +52,7 @@ export function WishlistButton({ item, display = "icon", className }: WishlistBu
         )}
       >
         <Heart className={cn("h-4 w-4 transition-transform", active && "fill-rose-500 text-rose-500 scale-110")} />
-        {active ? "Saved" : "Save"}
+        {active ? t("saved") : t("save")}
       </button>
     );
   }
@@ -58,7 +62,7 @@ export function WishlistButton({ item, display = "icon", className }: WishlistBu
       type="button"
       onClick={handleToggle}
       aria-pressed={active}
-      aria-label={active ? "Remove from wishlist" : "Add to wishlist"}
+      aria-label={active ? t("removeFromWishlist") : t("addToWishlist")}
       className={cn(
         "flex h-9 w-9 items-center justify-center rounded-full border backdrop-blur transition-all duration-300 shadow-sm",
         active

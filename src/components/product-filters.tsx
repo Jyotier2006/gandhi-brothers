@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -32,16 +33,17 @@ function FilterFields({
   handleClear: () => void;
   onClose?: () => void;
 }) {
+  const t = useTranslations("shop");
   return (
     <div className="flex flex-col gap-5">
       {/* Search */}
       <div className="space-y-1.5">
-        <Label className="text-xs font-bold text-ink uppercase tracking-widest">Search</Label>
+        <Label className="text-xs font-bold text-ink uppercase tracking-widest">{t("search")}</Label>
         <form onSubmit={handleSearchCommit} className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-ink/40 pointer-events-none" />
           <Input
             type="text"
-            placeholder="Search formulations..."
+            placeholder={t("searchPlaceholder")}
             className="pl-10 h-11 rounded-xl bg-[#F9F7F3] border-[#A69279]/20 text-ink placeholder:text-ink/40 focus-visible:ring-[#D4A351]/40"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -52,16 +54,16 @@ function FilterFields({
 
       {/* Category */}
       <div className="space-y-1.5">
-        <Label className="text-xs font-bold text-ink uppercase tracking-widest">Category</Label>
+        <Label className="text-xs font-bold text-ink uppercase tracking-widest">{t("category")}</Label>
         <Select
           value={searchParams.get("category") || "All"}
           onValueChange={(val) => update("category", val)}
         >
           <SelectTrigger className="h-11 w-full rounded-xl bg-[#F9F7F3] border-[#A69279]/20 text-ink focus:ring-[#D4A351]/40">
-            <SelectValue placeholder="All categories" />
+            <SelectValue placeholder={t("allCategories")} />
           </SelectTrigger>
           <SelectContent className="rounded-xl shadow-xl bg-white border-white/60">
-            <SelectItem value="All">All Categories</SelectItem>
+            <SelectItem value="All">{t("allCategories")}</SelectItem>
             <SelectItem value="Churna">Churna</SelectItem>
             <SelectItem value="Taila">Taila</SelectItem>
           </SelectContent>
@@ -70,10 +72,10 @@ function FilterFields({
 
       {/* Price Range */}
       <div className="space-y-1.5">
-        <Label className="text-xs font-bold text-ink uppercase tracking-widest">Price Range (₹)</Label>
+        <Label className="text-xs font-bold text-ink uppercase tracking-widest">{t("priceRange")}</Label>
         <div className="flex items-center gap-2">
           <Input
-            type="number" placeholder="Min" min="0"
+            type="number" placeholder={t("min")} min="0"
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value)}
             onBlur={() => update("min", minPrice)}
@@ -81,7 +83,7 @@ function FilterFields({
           />
           <span className="text-ink/40 font-bold shrink-0">–</span>
           <Input
-            type="number" placeholder="Max" min="0"
+            type="number" placeholder={t("max")} min="0"
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value)}
             onBlur={() => update("max", maxPrice)}
@@ -92,7 +94,7 @@ function FilterFields({
 
       {/* Sort */}
       <div className="space-y-1.5">
-        <Label className="text-xs font-bold text-ink uppercase tracking-widest">Sort</Label>
+        <Label className="text-xs font-bold text-ink uppercase tracking-widest">{t("sort")}</Label>
         <Select
           value={searchParams.get("sort") || "bestselling"}
           onValueChange={(val) => update("sort", val)}
@@ -101,10 +103,10 @@ function FilterFields({
             <SelectValue placeholder="Sort order" />
           </SelectTrigger>
           <SelectContent className="rounded-xl shadow-xl bg-white border-white/60">
-            <SelectItem value="bestselling">Best Sellers</SelectItem>
-            <SelectItem value="latest">Newest Arrivals</SelectItem>
-            <SelectItem value="price-asc">Price: Low to High</SelectItem>
-            <SelectItem value="price-desc">Price: High to Low</SelectItem>
+            <SelectItem value="bestselling">{t("sortBestSellers")}</SelectItem>
+            <SelectItem value="latest">{t("sortNewest")}</SelectItem>
+            <SelectItem value="price-asc">{t("sortPriceLow")}</SelectItem>
+            <SelectItem value="price-desc">{t("sortPriceHigh")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -116,14 +118,14 @@ function FilterFields({
           onClick={() => { handleClear(); onClose?.(); }}
           className="flex-1 h-11 rounded-xl border-[#A69279]/30 text-ink hover:text-[#A69279] hover:border-[#A69279]"
         >
-          Reset
+          {t("reset")}
         </Button>
         {onClose && (
           <Button
             onClick={onClose}
             className="flex-1 h-11 rounded-xl bg-[#A69279] hover:bg-[#89765D] text-white"
           >
-            Apply
+            {t("apply")}
           </Button>
         )}
       </div>
@@ -133,6 +135,7 @@ function FilterFields({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export function ProductFilters() {
+  const t = useTranslations("shop");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -196,7 +199,7 @@ export function ProductFilters() {
                      transition-all duration-200 active:scale-95"
         >
           <SlidersHorizontal className="h-4 w-4 text-[#A69279]" />
-          Filters
+          {t("filters")}
           {activeCount > 0 && (
             <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full
                              bg-[#D4A351] text-white text-[10px] font-bold">
@@ -237,7 +240,7 @@ export function ProductFilters() {
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#A69279]/10">
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="h-4 w-4 text-[#A69279]" />
-            <span className="font-bold text-ink text-base">Filters</span>
+            <span className="font-bold text-ink text-base">{t("filters")}</span>
           </div>
           <button
             onClick={() => setDrawerOpen(false)}
@@ -257,11 +260,11 @@ export function ProductFilters() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 items-end">
           {/* Search */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-bold text-ink uppercase tracking-widest">Search</Label>
+            <Label className="text-xs font-bold text-ink uppercase tracking-widest">{t("search")}</Label>
             <form onSubmit={handleSearchCommit} className="relative">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-ink/40 pointer-events-none" />
               <Input
-                type="text" placeholder="Search formulations..."
+                type="text" placeholder={t("searchPlaceholder")}
                 className="pl-10 h-11 rounded-xl bg-[#F9F7F3] border-[#A69279]/20 text-ink placeholder:text-ink/40 focus-visible:ring-[#D4A351]/40"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -271,13 +274,13 @@ export function ProductFilters() {
           </div>
           {/* Category */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-bold text-ink uppercase tracking-widest">Category</Label>
+            <Label className="text-xs font-bold text-ink uppercase tracking-widest">{t("category")}</Label>
             <Select value={searchParams.get("category") || "All"} onValueChange={(val) => update("category", val)}>
               <SelectTrigger className="h-11 w-full rounded-xl bg-[#F9F7F3] border-[#A69279]/20 text-ink focus:ring-[#D4A351]/40">
-                <SelectValue placeholder="All categories" />
+                <SelectValue placeholder={t("allCategories")} />
               </SelectTrigger>
               <SelectContent className="rounded-xl shadow-xl bg-white">
-                <SelectItem value="All">All Categories</SelectItem>
+                <SelectItem value="All">{t("allCategories")}</SelectItem>
                 <SelectItem value="Churna">Churna</SelectItem>
                 <SelectItem value="Taila">Taila</SelectItem>
               </SelectContent>
@@ -285,35 +288,35 @@ export function ProductFilters() {
           </div>
           {/* Price */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-bold text-ink uppercase tracking-widest">Price Range (₹)</Label>
+            <Label className="text-xs font-bold text-ink uppercase tracking-widest">{t("priceRange")}</Label>
             <div className="flex items-center gap-2">
-              <Input type="number" placeholder="Min" min="0" value={minPrice}
+              <Input type="number" placeholder={t("min")} min="0" value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)} onBlur={() => update("min", minPrice)}
                 className="h-11 rounded-xl bg-[#F9F7F3] border-[#A69279]/20 text-ink text-center focus-visible:ring-[#D4A351]/40" />
               <span className="text-ink/40 font-bold shrink-0">–</span>
-              <Input type="number" placeholder="Max" min="0" value={maxPrice}
+              <Input type="number" placeholder={t("max")} min="0" value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)} onBlur={() => update("max", maxPrice)}
                 className="h-11 rounded-xl bg-[#F9F7F3] border-[#A69279]/20 text-ink text-center focus-visible:ring-[#D4A351]/40" />
             </div>
           </div>
           {/* Sort + Reset */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-bold text-ink uppercase tracking-widest">Sort</Label>
+            <Label className="text-xs font-bold text-ink uppercase tracking-widest">{t("sort")}</Label>
             <div className="flex gap-2">
               <Select value={searchParams.get("sort") || "bestselling"} onValueChange={(val) => update("sort", val)}>
                 <SelectTrigger className="h-11 flex-1 rounded-xl bg-[#F9F7F3] border-[#A69279]/20 text-ink focus:ring-[#D4A351]/40">
                   <SelectValue placeholder="Sort" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl shadow-xl bg-white">
-                  <SelectItem value="bestselling">Best Sellers</SelectItem>
-                  <SelectItem value="latest">Newest Arrivals</SelectItem>
-                  <SelectItem value="price-asc">Price: Low → High</SelectItem>
-                  <SelectItem value="price-desc">Price: High → Low</SelectItem>
+                  <SelectItem value="bestselling">{t("sortBestSellers")}</SelectItem>
+                  <SelectItem value="latest">{t("sortNewest")}</SelectItem>
+                  <SelectItem value="price-asc">{t("sortPriceLow")}</SelectItem>
+                  <SelectItem value="price-desc">{t("sortPriceHigh")}</SelectItem>
                 </SelectContent>
               </Select>
               <Button variant="outline" onClick={handleClear}
                 className="h-11 px-4 rounded-xl border-[#A69279]/30 text-ink hover:text-[#A69279] hover:border-[#A69279] shrink-0">
-                Reset
+                {t("reset")}
               </Button>
             </div>
           </div>

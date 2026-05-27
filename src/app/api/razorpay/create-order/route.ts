@@ -10,6 +10,7 @@ import Razorpay from 'razorpay';
 import { getProductsByIds } from '@/lib/products';
 import { getShippingQuote, totalCartWeightKg } from '@/lib/shiprocket';
 import { effectivePrice } from '@/lib/utils';
+import { packagingCost, websiteFee } from '@/lib/pricing';
 
 type CartLine = { productId: string; quantity: number };
 
@@ -74,7 +75,13 @@ export async function POST(req: Request) {
       );
     }
 
-    const totalRupees = Math.round(subtotal + quote.rate);
+    // Extra charges (single source of truth in src/lib/pricing.ts):
+    //   packaging = ₹30/kg rounded up, fee = 5% of product subtotal.
+    const packaging = packagingCost(weightKg);
+    const fee = websiteFee(subtotal);
+    const handling = packaging + fee;
+
+    const totalRupees = Math.round(subtotal + quote.rate + handling);
     const amountPaise = totalRupees * 100;
 
     if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
@@ -98,6 +105,8 @@ export async function POST(req: Request) {
         pincode,
         shipping: String(quote.rate),
         subtotal: String(subtotal),
+        packaging: String(packaging),
+        website_fee: String(fee),
       },
     });
 
@@ -110,6 +119,9 @@ export async function POST(req: Request) {
       breakdown: {
         subtotal,
         shipping: quote.rate,
+        packaging,
+        fee,
+        handling,
         total: totalRupees,
         estimatedDays: quote.estimatedDays,
       },

@@ -208,6 +208,223 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    slug: "storing-ayurvedic-churnas-and-tailas",
+    title: "How to Store Ayurvedic Churnas and Tailas So They Stay Fresh",
+    excerpt:
+      "Powders and medicated oils keep best under a few simple conditions. Here's how to store your Ayurvedic churnas and tailas at home, what shortens their life, and how to read the dates on the pack.",
+    date: "2026-05-27",
+    author: "Gandhi Brothers",
+    cover: "/heritage/heritage-1950-house-at-girnar.png",
+    readMinutes: 5,
+    tags: ["Ayurveda Basics", "Buying Guide"],
+    body: [
+      {
+        type: "p",
+        text: "A good Ayurvedic preparation is made with care — and a little care at home keeps it that way. Churnas (powders) and tailas (oils) are both natural products with no synthetic preservatives, so how you store them genuinely affects how long they stay fresh. None of this is complicated; it just helps to know what to do.",
+      },
+      { type: "h2", text: "What shortens a natural product's life" },
+      {
+        type: "p",
+        text: "Four everyday things work against herbal products: moisture, heat, direct light, and air. Moisture is the biggest culprit for powders — it causes clumping and spoils texture. Heat and light slowly dull aroma and, for oils, can encourage rancidity. Air exposure, over time, does the same. Storage is really just about keeping those four in check.",
+      },
+      { type: "h2", text: "Storing churnas (powders)" },
+      {
+        type: "ul",
+        items: [
+          "Keep the pouch or jar tightly closed; press the air out and reseal it after every use.",
+          "Store in a cool, dry place away from direct sunlight — a cupboard shelf is ideal, not the windowsill.",
+          "Always use a clean, dry spoon. A damp spoon introduces moisture that the whole pack will share.",
+          "Keep it away from the stove and sink, where steam and splashes are constant.",
+          "If you decant into a jar, choose an airtight one and keep the original label with its batch number and dates.",
+        ],
+      },
+      { type: "h2", text: "Storing tailas (medicated oils)" },
+      {
+        type: "ul",
+        items: [
+          "Close the cap firmly and store upright, away from heat and direct light.",
+          "Never let water get into the bottle — pour rather than dip, and keep the rim clean.",
+          "A cool room shelf is fine; oils do not need refrigeration and can thicken if stored too cold.",
+          "Use within the period indicated on the pack, and keep the bottle out of reach of children.",
+        ],
+      },
+      { type: "h2", text: "Reading the dates on the pack" },
+      {
+        type: "p",
+        text: "Every genuine pack carries a manufacturing date, a use-by or expiry indication, and a batch number. The batch number ties your specific pack to the production run it came from. Buy quantities you will realistically finish within the indicated period — that is exactly why we offer more than one pack size.",
+      },
+      { type: "h2", text: "Simple signs it is time to retire a product" },
+      {
+        type: "ul",
+        items: [
+          "A powder that has clumped hard or feels damp.",
+          "An off or sour smell, or a noticeable change in colour.",
+          "An oil that smells rancid or looks markedly different from when you opened it.",
+        ],
+      },
+      {
+        type: "quote",
+        text: "Keep it dry, keep it closed, keep it out of the sun. Most of looking after a natural product is just that.",
+      },
+      {
+        type: "p",
+        text: "Stored well, a churna or taila stays true to how it left our house in Junagadh. This article is educational and is not medical advice — always follow the directions printed on the pack and the guidance of a qualified Ayurvedic physician.",
+      },
+    ],
+  },
+  {
+    slug: "single-herb-vs-polyherbal-churna",
+    title: "Single-Herb and Polyherbal Churnas: What's the Difference?",
+    excerpt:
+      "Some churnas are one herb; others blend several in classical proportions. Here's what sets them apart, how to read a composition list, and how people choose between them.",
+    date: "2026-05-24",
+    author: "Gandhi Brothers",
+    cover: "/heritage/heritage-late-1980s-first-machine.png",
+    readMinutes: 5,
+    tags: ["Ayurveda Basics"],
+    body: [
+      {
+        type: "p",
+        text: "Browse any Ayurvedic catalogue and you will see two kinds of churna: single-herb powders named after one dravya, and polyherbal blends with a classical name of their own. Knowing the difference makes a catalogue much easier to read.",
+      },
+      { type: "h2", text: "Single-herb churnas" },
+      {
+        type: "p",
+        text: "A single-herb churna is exactly that — one herb, cleaned, dried and ground to a fine, even powder. Names like Ashwagandha Churna, Brahmi Churna, or Triphala's component herbs fall here (Triphala itself is a blend of three). The appeal is simplicity and transparency: you know precisely what is in the pack, and it can be used on its own or as advised.",
+      },
+      { type: "h2", text: "Polyherbal churnas" },
+      {
+        type: "p",
+        text: "A polyherbal churna combines several dravyas in fixed, traditional proportions to make a named formulation — for example Sitopaladi, Avipattikar, Hingvashtak, or Sudarshan churna. These recipes come from the classical Ayurvedic texts, where the proportions are part of the formulation itself, not a modern marketing choice.",
+      },
+      {
+        type: "p",
+        text: "Making a polyherbal churna well is largely about consistency: each component is milled to grade, weighed, and blended so the mixture is uniform — the spoonful at the bottom of the pack should match the one at the top.",
+      },
+      { type: "h2", text: "How to read a composition list" },
+      {
+        type: "ul",
+        items: [
+          "A single-herb pack lists one botanical, usually with its Sanskrit and botanical name.",
+          "A polyherbal pack lists each ingredient, often with the quantity or proportion of each.",
+          "Either way, a genuine pack also shows the manufacturer, a batch number, dates, and directions.",
+        ],
+      },
+      { type: "h2", text: "How people choose" },
+      {
+        type: "p",
+        text: "There is no “better” category — single-herb and polyherbal churnas simply serve different purposes. A classical formulation is chosen when you want that specific traditional recipe; a single herb is chosen for simplicity or when a physician recommends it. As always, the right choice depends on guidance from a qualified Ayurvedic practitioner and the directions on the pack.",
+      },
+      {
+        type: "quote",
+        text: "A single-herb churna tells you one thing plainly; a polyherbal churna carries a classical recipe. Both are only as good as the milling and the proportions behind them.",
+      },
+      {
+        type: "p",
+        text: "You can see both kinds in our shop, each in more than one pack size. This article is educational and not a substitute for professional medical advice.",
+      },
+    ],
+  },
+  {
+    slug: "sesame-oil-base-ayurvedic-taila",
+    title: "Why Sesame Oil Is the Classic Base for Ayurvedic Tailas",
+    excerpt:
+      "Most traditional medicated oils start from sesame oil. Here's the role a base oil plays in a taila, why sesame (til) became the default in classical Ayurveda, and how the oil is prepared.",
+    date: "2026-05-20",
+    author: "Gandhi Brothers",
+    cover: "/heritage/heritage-1950-1973-first-25-years.png",
+    readMinutes: 6,
+    tags: ["Ayurveda Basics", "Behind the Scenes"],
+    body: [
+      {
+        type: "p",
+        text: "If you read the ingredients on a medicated oil, the base is almost always sesame oil — til taila. That is not a coincidence. In classical Ayurveda, the base oil is itself a considered choice, and sesame has long been the default. Here is why.",
+      },
+      { type: "h2", text: "What a base oil does in a taila" },
+      {
+        type: "p",
+        text: "A taila is made by cooking herbs, herbal pastes and liquids into a base oil so the oil carries the prepared herbs. In Ayurvedic terms the base oil is the sneha — the fatty medium that holds and carries the preparation. The choice of base affects texture, how the finished oil feels, and how well it keeps.",
+      },
+      { type: "h2", text: "Why sesame became the classical default" },
+      {
+        type: "p",
+        text: "Classical texts treat sesame oil as the standard sneha unless a formulation calls for something else. Practically, it is a stable, widely available oil that stands up to the long, staged cooking a taila requires, and it blends smoothly into the finished preparation. Generations of preparers worked with it, and the methods were written around it.",
+      },
+      {
+        type: "p",
+        text: "Other bases do appear — coconut oil and others are used where a specific recipe or regional practice calls for them — but sesame remains the reference point most classical tailas are built on.",
+      },
+      { type: "h2", text: "How the oil is prepared" },
+      {
+        type: "p",
+        text: "Making a taila is a patient, staged process: the herbal materials are cooked into the oil over time and judged by traditional end-points rather than a clock. Done properly, the water content is driven off and the oil takes on the character of the herbs without scorching. It is slow work, which is exactly why a well-made taila is worth seeking out.",
+      },
+      { type: "h2", text: "A note on storage" },
+      {
+        type: "p",
+        text: "Because tailas are oil-based, they keep well when stored away from heat and light with the cap closed. Keep water out of the bottle and use within the period shown on the pack.",
+      },
+      {
+        type: "quote",
+        text: "In a taila, the oil is not just a carrier — it is part of the formulation. Sesame earned its place as the classic base over a very long time.",
+      },
+      {
+        type: "p",
+        text: "You can browse our tailas in the shop. This article is educational and is not medical advice; please use any preparation as directed and under qualified guidance.",
+      },
+    ],
+  },
+  {
+    slug: "ayurveda-in-junagadh-gandhi-brothers-heritage",
+    title: "Ayurveda in Junagadh: Three Generations of Gandhi Brothers",
+    excerpt:
+      "From a house at the foot of Girnar in 1950 to a licensed manufacturing facility today, the story of how Gandhi Brothers has made classical Ayurvedic preparations in Junagadh for three generations.",
+    date: "2026-05-16",
+    author: "Gandhi Brothers",
+    cover: "/heritage/heritage-2023-factory-gomti-bhavan.png",
+    readMinutes: 6,
+    tags: ["Heritage"],
+    body: [
+      {
+        type: "p",
+        text: "Junagadh sits at the foot of Girnar, a place woven into Gujarat's long relationship with traditional medicine. It is where our family began making Ayurvedic preparations in 1950, and where we still make them today. This is a short history of Gandhi Brothers — and of how a home practice became a licensed manufacturer.",
+      },
+      { type: "h2", text: "1950: a house at Girnar" },
+      {
+        type: "p",
+        text: "It started in a house at the foot of Girnar. The first preparations were made by hand, in small quantities, the way classical churnas and tailas had always been made — sourcing dravyas, cleaning and drying them, grinding, sieving, and blending in traditional proportions. The scale was modest; the standards were not.",
+      },
+      { type: "h2", text: "The first decades: hands before machines" },
+      {
+        type: "p",
+        text: "For many years the work was done by hand. That period taught the things no machine teaches — how a properly dried herb should feel, what an even churna looks like, when a taila has cooked enough. Those judgements, passed from one generation to the next, are still the backbone of how we work.",
+      },
+      { type: "h2", text: "Late 1980s onward: the first machines" },
+      {
+        type: "p",
+        text: "As demand grew, the first machines arrived. Mechanising the grinding and sieving improved consistency and let us make more without changing the recipes or the proportions. The aim was never to industrialise the craft — only to do the same careful work more reliably.",
+      },
+      { type: "h2", text: "2013: a licensed manufacturer" },
+      {
+        type: "p",
+        text: "In time the practice became a formally licensed Ayurvedic manufacturer, holding FDCA licence GA/2079. Licensing meant inspected premises, documented processes, batch records, and accountability for every pack — a standing obligation rather than a one-time stamp. It is the difference between a recipe and a regulated product.",
+      },
+      { type: "h2", text: "Today: Gomti Bhavan, Junagadh" },
+      {
+        type: "p",
+        text: "Today we make our churnas and tailas at our facility in Junagadh and ship them across India, while staying true to the classical methods the family started with. Three generations on, the through-line is the same: source well, prepare patiently, label honestly, and let the work speak.",
+      },
+      {
+        type: "quote",
+        text: "From a house at the foot of Girnar to a licensed facility in Junagadh — the scale changed; the standards did not.",
+      },
+      {
+        type: "p",
+        text: "You can read more on our Heritage page or browse the catalogue in the shop. This article is about our history and is not medical advice.",
+      },
+    ],
+  },
 ];
 
 export function getAllArticles(): Article[] {
