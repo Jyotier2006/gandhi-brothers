@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { ProductDescription } from "@/lib/product-descriptions";
 import RegulatoryAccordion from "./RegulatoryAccordion";
 
@@ -17,7 +18,8 @@ interface Props {
  *   5. A few things worth noting (boxed, slightly warm)
  *   6. Regulatory accordion (collapsed by default)
  */
-export default function ProductRichContent({ product }: Props) {
+export default async function ProductRichContent({ product }: Props) {
+  const t = await getTranslations("product");
   return (
     <div className="mt-8 max-w-3xl">
       {/* Tagline */}
@@ -34,10 +36,10 @@ export default function ProductRichContent({ product }: Props) {
 
       {/* Detail boxes */}
       <div className="mt-10 space-y-5">
-        <DetailBox title="What's in the pack" body={product.whatsInThePack} />
-        <DetailBox title="How to use" body={product.howToUse} />
+        <DetailBox title={t("whatsInPack")} body={product.whatsInThePack} />
+        <DetailBox title={t("howToUse")} body={product.howToUse} />
         <DetailBox
-          title="A few things worth noting"
+          title={t("worthNoting")}
           body={product.cautions}
           warm
         />

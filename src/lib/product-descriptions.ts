@@ -1172,11 +1172,9 @@ export const productDescriptions: Record<string, ProductDescription> = {
  * Try SKU first (DBC, GHO, etc.), then fall back to fuzzy slug match.
  */
 export function getProductDescription(skuOrSlug: string): ProductDescription | null {
-  // Direct SKU match
   const upper = skuOrSlug.toUpperCase();
   if (productDescriptions[upper]) return productDescriptions[upper];
 
-  // Slug match — search by name
   const slug = skuOrSlug.toLowerCase().replace(/[^a-z0-9]/g, "");
   for (const desc of Object.values(productDescriptions)) {
     const nameSlug = desc.name.toLowerCase().replace(/[^a-z0-9]/g, "");

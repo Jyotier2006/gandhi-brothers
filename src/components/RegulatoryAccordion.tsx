@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { regulatoryInfo, ProductDescription } from "@/lib/product-descriptions";
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
  * info is on-page but doesn't clutter the marketing-first hero.
  */
 export default function RegulatoryAccordion({ product }: Props) {
+  const t = useTranslations("product");
   const [open, setOpen] = useState(false);
 
   return (
@@ -24,7 +26,7 @@ export default function RegulatoryAccordion({ product }: Props) {
         aria-expanded={open}
       >
         <span className="font-serif text-lg text-[#6B4A35]">
-          Manufacturer &amp; Regulatory Information
+          {t("regHeading")}
         </span>
         <span
           className={`text-[#A57051] text-2xl font-light transition-transform duration-200 ${
@@ -41,42 +43,42 @@ export default function RegulatoryAccordion({ product }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
             <div>
               <div className="text-xs uppercase tracking-wider text-[#A57051] mb-1">
-                Manufacturer
+                {t("regManufacturer")}
               </div>
               <div>{regulatoryInfo.manufacturer}</div>
             </div>
 
             <div>
               <div className="text-xs uppercase tracking-wider text-[#A57051] mb-1">
-                Manufacturing Licence
+                {t("regLicence")}
               </div>
               <div>{regulatoryInfo.licence}</div>
             </div>
 
             <div>
               <div className="text-xs uppercase tracking-wider text-[#A57051] mb-1">
-                Classification
+                {t("regClassification")}
               </div>
               <div>{product.classification}</div>
             </div>
 
             <div>
               <div className="text-xs uppercase tracking-wider text-[#A57051] mb-1">
-                Country of Origin
+                {t("regCountry")}
               </div>
               <div>{regulatoryInfo.countryOfOrigin}</div>
             </div>
 
             <div>
               <div className="text-xs uppercase tracking-wider text-[#A57051] mb-1">
-                GSTIN
+                {t("regGstin")}
               </div>
               <div>{regulatoryInfo.gstin}</div>
             </div>
 
             <div>
               <div className="text-xs uppercase tracking-wider text-[#A57051] mb-1">
-                HSN Code &amp; GST
+                {t("regHsnGst")}
               </div>
               <div>
                 {product.hsnCode} · {product.gst}
@@ -85,7 +87,7 @@ export default function RegulatoryAccordion({ product }: Props) {
 
             <div>
               <div className="text-xs uppercase tracking-wider text-[#A57051] mb-1">
-                Customer Care
+                {t("regCustomerCare")}
               </div>
               <div>
                 <a
@@ -99,7 +101,7 @@ export default function RegulatoryAccordion({ product }: Props) {
 
             <div>
               <div className="text-xs uppercase tracking-wider text-[#A57051] mb-1">
-                Email &amp; Web
+                {t("regEmailWeb")}
               </div>
               <div>
                 <a

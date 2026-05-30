@@ -1,23 +1,26 @@
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Leaf, MapPin, Phone, Mail, Instagram } from "lucide-react";
 
-const SHOP_LINKS = [
-  { label: "All Products", href: "/products" },
-  { label: "Churnas", href: "/products?category=Churna" },
-  { label: "Tailas", href: "/products?category=Taila" },
-];
+export default async function Footer() {
+  const t = await getTranslations("footer");
 
-const COMPANY_LINKS = [
-  { label: "About Us", href: "/about" },
-  { label: "Journal", href: "/blog" },
-  { label: "Certifications", href: "/certifications" },
-  { label: "FAQ", href: "/faq" },
-  { label: "Inquiries", href: "/inquiry" },
-  { label: "Contact", href: "/contact" },
-];
+  const SHOP_LINKS = [
+    { label: t("allProducts"), href: "/products" },
+    { label: t("churnas"), href: "/products?category=Churna" },
+    { label: t("tailas"), href: "/products?category=Taila" },
+  ];
 
-export default function Footer() {
+  const COMPANY_LINKS = [
+    { label: t("aboutUs"), href: "/about" },
+    { label: t("journal"), href: "/blog" },
+    { label: t("certifications"), href: "/certifications" },
+    { label: t("faq"), href: "/faq" },
+    { label: t("inquiries"), href: "/inquiry" },
+    { label: t("contact"), href: "/contact" },
+  ];
+
   return (
     <footer className="relative bg-[#F9F7F3] border-t border-[#A69279]/15 text-[#4A3F35] overflow-hidden">
       {/* Decorative background glows */}
@@ -38,18 +41,18 @@ export default function Footer() {
             />
           </Link>
           <p className="text-sm text-ink/70 font-serif leading-relaxed h-full">
-            Bringing the healing wisdom of authentic Ayurveda from Junagadh's heartland directly to your home — pure, trusted, and meticulously certified.
+            {t("tagline")}
           </p>
           <div className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-mustard/10 border border-mustard/20 text-xs text-mustard font-semibold tracking-wide">
             <Leaf className="h-3.5 w-3.5" />
-            <span>FDCA Licence: GA/2079</span>
+            <span>{t("licence")}</span>
           </div>
         </div>
 
         {/* Shop Links */}
         <div>
           <h3 className="text-ink font-sans font-bold text-sm uppercase tracking-widest mb-6 border-b border-ink/10 pb-2">
-            Shop
+            {t("shopHeading")}
           </h3>
           <ul className="space-y-3.5">
             {SHOP_LINKS.map((link) => (
@@ -68,7 +71,7 @@ export default function Footer() {
         {/* Company Links */}
         <div>
           <h3 className="text-ink font-sans font-bold text-sm uppercase tracking-widest mb-6 border-b border-ink/10 pb-2">
-            Company
+            {t("companyHeading")}
           </h3>
           <ul className="space-y-3.5">
             {COMPANY_LINKS.map((link) => (
@@ -87,7 +90,7 @@ export default function Footer() {
         {/* Contact */}
         <div>
           <h3 className="text-ink font-sans font-bold text-sm uppercase tracking-widest mb-6 border-b border-ink/10 pb-2">
-            Contact Us
+            {t("contactHeading")}
           </h3>
           <ul className="space-y-4 text-sm font-medium">
             <li className="flex items-start gap-3 text-ink/80 group">
@@ -144,27 +147,27 @@ export default function Footer() {
 
       {/* Bottom Row */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-ink/50 font-medium">
-        <p>© {new Date().getFullYear()} Gandhi Brothers. All rights reserved.</p>
+        <p>{t("copyright", { year: new Date().getFullYear() })}</p>
 
         <div className="flex items-center gap-6 flex-wrap justify-center">
           <Link href="/privacy-policy" className="hover:text-ink transition-colors">
-            Privacy Policy
+            {t("privacy")}
           </Link>
           <Link href="/terms-of-service" className="hover:text-ink transition-colors">
-            Terms of Service
+            {t("terms")}
           </Link>
           <Link href="/shipping-policy" className="hover:text-ink transition-colors">
-            Shipping Policy
+            {t("shipping")}
           </Link>
           <Link href="/refund-policy" className="hover:text-ink transition-colors">
-            Refund Policy
+            {t("refund")}
           </Link>
         </div>
       </div>
 
       {/* Disclaimer */}
       <div className="relative z-10 border-t border-terracotta/10 bg-terracotta/5 backdrop-blur-md text-center py-3 px-4 text-[11px] text-ink/60 font-serif tracking-wide">
-        Ayurvedic medicine. For best results, use strictly under qualified medical supervision. Not intended to diagnose, treat, cure, or prevent any disease.
+        {t("disclaimer")}
       </div>
     </footer>
   );

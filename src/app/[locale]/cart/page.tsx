@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { useCartStore } from "@/lib/store/cart-store";
 import { formatINR } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 export default function CartPage() {
+  const t = useTranslations("cart");
+  const tc = useTranslations("common");
   const [hydrated, setHydrated] = useState(false);
   const items = useCartStore((s) => s.items);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
@@ -28,7 +31,7 @@ export default function CartPage() {
           <div className="h-16 w-16 rounded-3xl bg-terracotta/10 flex items-center justify-center">
             <ShoppingBag className="h-8 w-8 text-terracotta" />
           </div>
-          <p className="font-semibold tracking-widest uppercase text-sm">Securely loading cart...</p>
+          <p className="font-semibold tracking-widest uppercase text-sm">{t("loading")}</p>
         </div>
       </div>
     );
@@ -45,15 +48,15 @@ export default function CartPage() {
         </div>
         
         <h1 className="text-4xl md:text-5xl font-sans font-bold text-ink mb-4 tracking-tight">
-          Your cart is empty
+          {t("emptyTitle")}
         </h1>
         <p className="text-ink-400 font-serif text-lg mb-10 max-w-sm">
-          Discover our classical formulations crafted for holistic well-being.
+          {t("emptyBody")}
         </p>
-        
+
         <Link href="/products" className="group">
           <Button size="lg" className="h-14 px-10 rounded-full text-base shadow-xl shadow-terracotta/30 hover:shadow-terracotta/40 transition-all duration-300">
-            Browse Catalogue
+            {t("browseCatalogue")}
           </Button>
         </Link>
       </div>
@@ -69,7 +72,7 @@ export default function CartPage() {
 
       <div className="max-w-7xl mx-auto px-4 lg:px-8 py-12 md:py-16">
         <div className="mb-10 text-center lg:text-left">
-          <h1 className="text-4xl md:text-5xl font-sans font-bold text-ink tracking-tight pb-2">Shopping Cart</h1>
+          <h1 className="text-4xl md:text-5xl font-sans font-bold text-ink tracking-tight pb-2">{t("title")}</h1>
           <div className="h-1.5 w-16 bg-gradient-to-r from-terracotta to-mustard rounded-full mx-auto lg:mx-0 mt-4" />
         </div>
 
@@ -115,7 +118,7 @@ export default function CartPage() {
                     <button
                       onClick={() => removeItem(item.productId)}
                       className="p-2 sm:p-2.5 text-ink-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all shrink-0 mt-[-4px]"
-                      aria-label={`Remove ${item.name}`}
+                      aria-label={t("remove", { name: item.name })}
                     >
                       <Trash2 className="h-5 w-5" />
                     </button>
@@ -127,7 +130,7 @@ export default function CartPage() {
                       <button
                         className="flex h-full w-10 items-center justify-center text-ink hover:bg-terracotta hover:text-white transition-colors"
                         onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                        aria-label="Decrease quantity"
+                        aria-label={t("qtyDecrease")}
                       >
                         <Minus className="h-4 w-4" />
                       </button>
@@ -138,7 +141,7 @@ export default function CartPage() {
                         className="flex h-full w-10 items-center justify-center text-ink hover:bg-terracotta hover:text-white disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-ink transition-colors"
                         onClick={() => updateQuantity(item.productId, item.quantity + 1)}
                         disabled={item.quantity >= item.stock}
-                        aria-label="Increase quantity"
+                        aria-label={t("qtyIncrease")}
                       >
                         <Plus className="h-4 w-4" />
                       </button>
@@ -158,25 +161,25 @@ export default function CartPage() {
             <div className="sticky top-24 bg-white/80 backdrop-blur-xl border border-white rounded-[2rem] p-8 shadow-2xl shadow-ink/5">
               
               <h2 className="text-2xl font-bold font-sans text-ink mb-6 flex items-center gap-3">
-                Order Summary
+                {t("orderSummary")}
               </h2>
 
               <div className="space-y-4 text-[15px] font-medium text-ink/80 mb-6 border-b border-ink-100/50 pb-6">
                 <div className="flex justify-between items-center">
-                  <span>Subtotal</span>
+                  <span>{tc("subtotal")}</span>
                   <span className="font-bold text-ink">{formatINR(subtotal)}</span>
                 </div>
-                
+
                 <div className="flex justify-between items-center">
-                  <span>Shipping</span>
-                  <span className="text-xs font-semibold text-ink/50 italic">Calculated at checkout</span>
+                  <span>{tc("shipping")}</span>
+                  <span className="text-xs font-semibold text-ink/50 italic">{t("calculatedAtCheckout")}</span>
                 </div>
               </div>
 
               <div className="flex justify-between items-end mb-8 pt-2">
                 <div>
-                  <span className="block text-sm text-ink/50 font-bold uppercase tracking-wider mb-1">Subtotal</span>
-                  <span className="text-xs text-ink/40">Shipping added at checkout</span>
+                  <span className="block text-sm text-ink/50 font-bold uppercase tracking-wider mb-1">{tc("subtotal")}</span>
+                  <span className="text-xs text-ink/40">{t("shippingAddedAtCheckout")}</span>
                 </div>
                 <span className="text-3xl font-extrabold text-ink tracking-tight">
                   {formatINR(subtotal)}
@@ -185,13 +188,13 @@ export default function CartPage() {
 
               <Link href="/checkout" className="block group">
                 <Button size="lg" className="h-14 w-full rounded-2xl text-lg shadow-xl shadow-terracotta/20 bg-ink hover:bg-terracotta transition-all duration-300">
-                  Proceed to checkout
+                  {tc("proceedToCheckout")}
                 </Button>
               </Link>
-              
+
               <Link href="/products" className="block mt-4 text-center">
                 <Button variant="ghost" className="text-ink-400 hover:text-ink w-full rounded-2xl h-12">
-                  Continue shopping
+                  {tc("continueShopping")}
                 </Button>
               </Link>
             </div>

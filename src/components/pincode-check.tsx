@@ -19,6 +19,7 @@
  * Pay button should be disabled until shipping !== null.
  */
 import { useState, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 
 type CartItem = { productId: string; quantity: number };
@@ -41,6 +42,7 @@ export function PincodeCheck({
   onPincodeChange: (p: string) => void;
   onQuoteChange: (quote: Quote | null) => void;
 }) {
+  const t = useTranslations('pincode');
   const [status, setStatus] = useState<'idle' | 'checking' | 'ok' | 'unserviceable' | 'error'>('idle');
   const [quote, setQuote] = useState<Quote | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -89,7 +91,7 @@ export function PincodeCheck({
 
       if (!res.ok) {
         setStatus('error');
-        setErrorMsg(data.error || 'Could not check delivery.');
+        setErrorMsg(data.error || t('errCheck'));
         setQuote(null);
         onQuoteChange(null);
         return;
@@ -108,7 +110,7 @@ export function PincodeCheck({
       onQuoteChange(newQuote);
     } catch (err) {
       setStatus('error');
-      setErrorMsg('Network error. Please try again.');
+      setErrorMsg(t('errNetwork'));
       setQuote(null);
       onQuoteChange(null);
     }
@@ -117,7 +119,7 @@ export function PincodeCheck({
   return (
     <div className="space-y-2">
       <label className="block text-sm font-semibold text-ink/80 ml-1">
-        PIN code <span className="text-terracotta">*</span>
+        {t('label')} <span className="text-terracotta">*</span>
       </label>
 
       <div className="relative">
@@ -127,7 +129,7 @@ export function PincodeCheck({
           maxLength={6}
           value={pincode}
           onChange={(e) => onPincodeChange(e.target.value.replace(/\D/g, ''))}
-          placeholder="6-digit pincode"
+          placeholder={t('placeholder')}
           className="flex h-14 w-full rounded-2xl border border-ink-100/60 bg-cream/30 px-4 pr-10 py-2 text-sm text-ink placeholder:text-ink-400 focus:outline-none focus-visible:ring-4 focus-visible:ring-terracotta/30 focus-visible:bg-white focus-visible:border-terracotta/40 transition-colors"
         />
 
@@ -144,10 +146,7 @@ export function PincodeCheck({
       {status === 'ok' && quote && (
         <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-xl px-3 py-2">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
-          <span>
-            Delivers in approximately <strong>{quote.estimatedDays} days</strong>
-            {' '}for <strong>₹{quote.rate}</strong>
-          </span>
+          <span>{t('deliversIn', { days: quote.estimatedDays, rate: quote.rate })}</span>
         </div>
       )}
 
@@ -155,13 +154,9 @@ export function PincodeCheck({
         <div className="flex items-start gap-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <div>
-            <p>Sorry, we don&apos;t ship to this pincode yet.</p>
+            <p>{t('unserviceableTitle')}</p>
             <p className="text-xs mt-1">
-              Please email{' '}
-              <a href="mailto:support@gandhibrothers.co.in" className="underline">
-                support@gandhibrothers.co.in
-              </a>{' '}
-              for alternatives.
+              {t('unserviceableBody', { email: 'support@gandhibrothers.co.in' })}
             </p>
           </div>
         </div>
