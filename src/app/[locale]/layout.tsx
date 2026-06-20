@@ -64,6 +64,11 @@ export const metadata: Metadata = {
       "x-default": "/",
     },
   },
+  icons: {
+    icon: [{ url: "/logo.png", type: "image/png" }],
+    apple: "/logo.png",
+    shortcut: "/logo.png",
+  },
   robots: {
     index: true,
     follow: true,
